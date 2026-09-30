@@ -25,7 +25,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             SpeciesTableSeeder::class,
-            HabitatTableSeeder::class
+            HabitatTableSeeder::class,
+            AnimalTableSeeder::class
         ]);
     }
 }

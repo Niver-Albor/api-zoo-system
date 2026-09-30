@@ -13,6 +13,6 @@ class HabitatTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Habitat::factory(20)->create();
+        Habitat::factory(2)->create();
     }
 }

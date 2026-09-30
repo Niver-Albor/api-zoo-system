@@ -13,6 +13,6 @@ class SpeciesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Species::factory(30)->create();
+        Species::factory(5)->create();
     }
 }
