@@ -12,7 +12,16 @@ class Animal extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     protected $table = 'animals';
-    protected $fillable = ['habitat_id', 'species_id', 'code', 'name', 'sex', 'birth_date', 'admission_date', 'health_status'];
+    protected $fillable = [
+        'habitat_id', 
+        'species_id', 
+        'code', 
+        'name', 
+        'sex', 
+        'birth_date', 
+        'admission_date', 
+        'health_status'
+        ];
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     public function habitat()

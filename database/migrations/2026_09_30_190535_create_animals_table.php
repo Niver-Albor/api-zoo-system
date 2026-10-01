@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name', 100);
             $table->enum('sex', ['male', 'female', 'unknown'])->default('unknown');
             $table->date('birth_date')->nullable();
-            $table->date('admission_date');
+            $table->date('admission_date')->useCurrent();
             $table->enum('health_status', ['healthy', 'treatment', 'quarantine'])->default('healthy');
             $table->softDeletes();
             $table->timestamps();
