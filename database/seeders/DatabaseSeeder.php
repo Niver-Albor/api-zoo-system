@@ -18,16 +18,17 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
         $this->call([
             SpeciesTableSeeder::class,
             HabitatTableSeeder::class,
             AnimalTableSeeder::class,
-            PermissionTableSeeder::class
+            PermissionAndRoleTableSeeder::class
+        ]);
+
+        User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'role_id' => 1
         ]);
     }
 }

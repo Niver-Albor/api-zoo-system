@@ -3,10 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class PermissionTableSeeder extends Seeder
+class PermissionAndRoleTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -32,5 +33,18 @@ class PermissionTableSeeder extends Seeder
             {
                 Permission::firstOrCreate(['name' => $permission['name']], $permission);
             }
+
+        $adminRole = Role::firstOrCreate(['name' => 'admin'], ['description' => 'Administrador general']);
+        $vetRole = Role::firstOrCreate(['name' => 'veterinarian'], ['description' => 'Personal médico']);
+
+        $allPermissionIds = Permission::pluck('id');
+        $adminRole->permissions()->sync($allPermissionIds);
+
+        $vetPermissionIds = Permission::whereIn('name', [
+            'animals.view',
+            'medical.view',
+            'medical.create'
+        ])->pluck('id');
+        $vetRole->permissions()->sync($vetPermissionIds);
     }
 }
