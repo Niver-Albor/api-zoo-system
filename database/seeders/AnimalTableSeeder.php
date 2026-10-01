@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Animal;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
@@ -49,7 +51,16 @@ class AnimalTableSeeder extends Seeder
                     'updated_at' => now()
                 ];
             }
+
+        Animal::insert($animals);
         
-        DB::table('animals')->insert($animals);
+        /*
+        $user = User::first();
+        auth()->login($user);
+        $animal = Animal::create($animals[0]);
+        $animal->name = 'Prueba';
+        $animal->save();
+        $animal->delete();
+        */
     }
 }

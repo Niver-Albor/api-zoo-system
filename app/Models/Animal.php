@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Animal extends Model
+class Animal extends Model implements Auditable
 {
     use HasFactory;
+    use \OwenIt\Auditing\Auditable;
 
     protected $table = 'animals';
     protected $fillable = ['habitat_id', 'species_id', 'code', 'name', 'sex', 'birth_date', 'admission_date', 'health_status'];
