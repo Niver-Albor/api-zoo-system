@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class MedicalRecord extends Model
+{
+    use HasFactory;
+
+    protected $table = 'medical_records';
+    protected $fillable = [
+        'animal_id', 
+        'user_id', 
+        'replaces_id', 
+        'record_type', 
+        'diagnosis', 
+        'treatment', 
+        'performed_at', 
+        'next_checkup_at'
+        ];
+    protected $hidden = ['created_at', 'updated_at'];
+
+    public function animals()
+    {
+        return $this->belongsTo(Animal::class, 'animal_id');
+    }
+
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function replacedRecord()
+    {
+        return $this->belongsTo(MedicalRecord::class, 'replaces_id');
+    }
+
+    public function correctionRecord()
+    {
+        return $this->hasOne(MedicalRecord::class, 'replaces_id');
+    }
+}
