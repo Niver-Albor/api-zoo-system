@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\Entities\AnimalEntity;
+use App\Business\Services\CreateAnimalService;
 use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
@@ -12,6 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 class AnimalController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        protected CreateAnimalService $createAnimalService
+    ){}
 
     public function index(Request $request)
     {
@@ -56,10 +62,9 @@ class AnimalController extends Controller
 
     public function store(StoreAnimalRequest $request)
     {
-        $validatedData = $request->validated();
+        $animalEntity = AnimalEntity::fromArray($request->validated());
 
-        $animal = Animal::create($validatedData);
-        $animal->refresh();
+        $animal = $this->createAnimalService->create($animalEntity);
 
         return $this->successResponse(data: $animal, code: Response::HTTP_CREATED);
     }
