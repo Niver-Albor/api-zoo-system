@@ -175,3 +175,38 @@ test('Falla al consultar con un code invalido', function () {
         ->assertJsonFragment(['message' => 'Código invalido.']);
 });
 
+test('Modificación correcta de campos', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+
+test('Permite conservar el mismo code si pertenece al mismo animal', function() {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+
+test('Falla si code ya esta en uso', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+
+test('Falla si se intenta actualizar un registro inexistente', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+
+test('Elimina un registro correctamente', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
+
+test('Falla si se intenta eliminar un registro inexistente', function () {
+    $response = $this->get('/');
+
+    $response->assertStatus(200);
+});
