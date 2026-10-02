@@ -22,12 +22,12 @@ class AnimalEntity
             id: $data['id'] ?? null,
             habitatId: $data['habitat_id'] ?? null,
             speciesId: $data['species_id'] ?? null,
-            code: $data['code'] ?? null,
+            code: strtoupper(trim($data['code'])) ?? null,
             name: $data['name'] ?? null,
-            sex: $data['sex'] ?? null,
+            sex: $data['sex'] ?? 'unknown',
             birthDate: $data['birth_date'] ?? null,
             admissionDate: $data['admission_date'] ?? date('Y-m-d'),
-            healthStatus: $data['health_status'] ?? null,
+            healthStatus: $data['health_status'] ?? 'healthy',
         );
     }
 
