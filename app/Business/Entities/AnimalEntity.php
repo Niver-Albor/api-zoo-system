@@ -16,14 +16,14 @@ class AnimalEntity
         public ?string $healthStatus,
     ){}
 
-    public static function fromArray(array $data): self
+    public static function createFromArray(array $data): self
     {
         return new self(
             id: $data['id'] ?? null,
-            habitatId: $data['habitat_id'] ?? null,
-            speciesId: $data['species_id'] ?? null,
-            code: strtoupper(trim($data['code'])) ?? null,
-            name: $data['name'] ?? null,
+            habitatId: $data['habitat_id'],
+            speciesId: $data['species_id'],
+            code: strtoupper(trim($data['code'])),
+            name: $data['name'],
             sex: $data['sex'] ?? 'unknown',
             birthDate: $data['birth_date'] ?? null,
             admissionDate: $data['admission_date'] ?? date('Y-m-d'),
@@ -34,6 +34,7 @@ class AnimalEntity
     public function toArray(): array
     {
         return [
+            'id'            => $this->id,
             'habitat_id'     => $this->habitatId,
             'species_id'     => $this->speciesId,
             'code'           => $this->code,

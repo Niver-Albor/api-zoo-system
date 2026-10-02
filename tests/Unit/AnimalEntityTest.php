@@ -44,7 +44,7 @@ test('Asigna los valores por defecto correctamente', function () {
         'name' => 'Simba',
     ];
 
-    $animal = AnimalEntity::fromArray($data);
+    $animal = AnimalEntity::createFromArray($data);
 
     $this->assertEquals('unknown', $animal->sex);
     $this->assertEmpty($animal->birthDate);

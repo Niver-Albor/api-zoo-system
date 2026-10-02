@@ -23,7 +23,7 @@ class AnimalFactory extends Factory
         return [
             'habitat_id' => Habitat::inRandomOrder()->first()?->id ?? Habitat::factory(),
             'species_id' => Species::inRandomOrder()->first()?->id ?? Species::factory(), 
-            'code' => 'ANI-' . $this->faker->unique()->numberBetween(1000, 9999),
+            'code' => strtoupper(trim('ANI-' . $this->faker->unique()->numberBetween(1000, 9999))),
             'name' => $this->faker->firstName(),
             'sex' => $this->faker->randomElement(['male', 'female', 'unknown']),
             'birth_date' => $this->faker->dateTimeBetween('-10 years', '-1 year'),

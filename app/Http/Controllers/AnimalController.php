@@ -57,12 +57,12 @@ class AnimalController extends Controller
             {
                 return $this->errorResponse(message:'Código invalido.', code:Response::HTTP_NOT_FOUND);
             }
-        return $this->successResponse($animal);
+        return $this->successResponse(data: $animal, code: Response::HTTP_FOUND);
     }
 
     public function store(StoreAnimalRequest $request)
     {
-        $animalEntity = AnimalEntity::fromArray($request->validated());
+        $animalEntity = AnimalEntity::createFromArray($request->validated());
 
         $animal = $this->createAnimalService->create($animalEntity);
 

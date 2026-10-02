@@ -3,17 +3,17 @@
 use App\Http\Controllers\AnimalController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/animal', [AnimalController::class, 'index'])
+Route::get('/animals', [AnimalController::class, 'index'])
     ->middleware('permission:animals.view');
 
-Route::get('/animal/{code}', [AnimalController::class, 'show'])
+Route::get('/animals/{code}', [AnimalController::class, 'show'])
     ->middleware('permission:animals.view');
 
-Route::post('/animal', [AnimalController::class, 'store'])
+Route::post('/animals', [AnimalController::class, 'store'])
     ->middleware('permission:animals.create');
 
-Route::put('/animal/{code}', [AnimalController::class, 'update'])
+Route::put('/animals/{code}', [AnimalController::class, 'update'])
     ->middleware('permission:animals.update');
 
-Route::delete('/animal/{code}', [AnimalController::class, 'destroy'])
+Route::delete('/animals/{code}', [AnimalController::class, 'destroy'])
     ->middleware('permission:animals.delete');

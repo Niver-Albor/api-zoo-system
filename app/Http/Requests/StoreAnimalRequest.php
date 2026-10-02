@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class StoreAnimalRequest extends FormRequest
 {
@@ -32,5 +33,13 @@ class StoreAnimalRequest extends FormRequest
             'admission_date'    => 'nullable|date|before_or_equal:today',
             'health_status'     => 'nullable|in:healthy,treatment,quarantine',
         ];
+    }
+
+    #[Override]
+    protected function prepareForValidation()
+    {
+        $this->merge([
+        'code' => $this->code ? strtoupper(trim($this->code)) : null,
+        ]);
     }
 }

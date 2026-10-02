@@ -13,6 +13,6 @@ class CreateAnimalService
 
         $animalEntity->id = $animal->id;
 
-        return $animalEntity;
+        return $animalEntity->toArray();
     }
 }
