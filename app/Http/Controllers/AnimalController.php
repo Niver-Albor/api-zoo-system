@@ -44,9 +44,9 @@ class AnimalController extends Controller
 
     public function show(string $code)
     {
-        $animal = Animal::find($code);
+        $animal = Animal::where('code', 'LIKE', "{$code}%")->get();
 
-        if(empty($animal))
+        if ($animal->isEmpty())
             {
                 return $this->errorResponse(message:'Código invalido.', code:Response::HTTP_NOT_FOUND);
             }
@@ -61,5 +61,10 @@ class AnimalController extends Controller
         $animal->refresh();
 
         return $this->successResponse(data: $animal, code: Response::HTTP_CREATED);
+    }
+
+    public function update($request)
+    {
+        
     }
 }
