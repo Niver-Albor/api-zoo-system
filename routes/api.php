@@ -14,3 +14,6 @@ Route::post('/animal', [AnimalController::class, 'store'])
 
 Route::put('/animal/{code}', [AnimalController::class, 'update'])
     ->middleware('permission:animals.update');
+
+Route::delete('/animal/{code}', [AnimalController::class, 'destroy'])
+    ->middleware('permission:animals.delete');

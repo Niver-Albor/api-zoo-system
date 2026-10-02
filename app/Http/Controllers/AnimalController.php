@@ -79,5 +79,17 @@ class AnimalController extends Controller
         );
     }
 
-    
+    public function destroy(string $code)
+    {
+        $animal = Animal::where('code', $code)->firstOrFail();
+
+        $animal->delete();
+        $animal->refresh();
+
+        return $this->successResponse(
+            data: $animal,
+            message: 'Animal eliminado correctamente',
+            code: Response::HTTP_OK
+        );
+    }
 }
