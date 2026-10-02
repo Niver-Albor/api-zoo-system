@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAnimalRequest;
+use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -63,8 +64,20 @@ class AnimalController extends Controller
         return $this->successResponse(data: $animal, code: Response::HTTP_CREATED);
     }
 
-    public function update($request)
+    public function update(UpdateAnimalRequest $request, string $code)
     {
-        
+        $validatedData = $request->validated();
+        $animal = Animal::where('code', $code)->firstOrFail();
+
+        $animal->update($validatedData);
+        $animal->refresh();
+
+        return $this->successResponse(
+            data: $animal,
+            message: 'Animal actualizado correctamente',
+            code: Response::HTTP_OK
+        );
     }
+
+    
 }
