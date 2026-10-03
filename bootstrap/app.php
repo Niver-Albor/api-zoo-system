@@ -30,4 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     ], Response::HTTP_BAD_REQUEST);
                 }
         });
-    })->create();
+    })
+    ->withCommands([
+        __DIR__.'/../app/Console/Commands',
+    ])->create();

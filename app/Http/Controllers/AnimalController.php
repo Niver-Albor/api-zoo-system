@@ -64,7 +64,7 @@ class AnimalController extends Controller
     {
         $animalEntity = AnimalEntity::createFromArray($request->validated());
 
-        $animal = $this->createAnimalService->create($animalEntity);
+        $animal = $this->createAnimalService->execute($animalEntity);
 
         return $this->successResponse(data: $animal, code: Response::HTTP_CREATED);
     }

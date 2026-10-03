@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Business\Services;
+
+{{useModel}}
+{{useEntity}}
+
+class {{class}}
+{
+    public function __construct()
+    {
+        //
+    }
+
+    public function execute({{parameterType}} $data)
+    {
+        // Lógica de negocio aquí
+    }
+}
