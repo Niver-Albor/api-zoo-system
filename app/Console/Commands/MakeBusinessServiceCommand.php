@@ -32,9 +32,10 @@ class MakeBusinessServiceCommand extends Command
         $modelName = $this->option('model');
         $hasEntity = $this->option('entity');
 
-        if (is_null($modelName)) {
-            $modelName = $this->selectModelInteractively();
-        }
+        if (is_null($modelName))
+            {
+                $modelName = $this->selectModelInteractively();
+            }
 
         $className = str_ends_with($name, 'Service') ? $name : $name . 'Service';
 
@@ -50,10 +51,11 @@ class MakeBusinessServiceCommand extends Command
 
         $stubPath = app_path('Config\business-service.stub');
 
-        if (!File::exists($stubPath)) {
-            $this->error("No se encontró el archivo stub en: {$stubPath}");
-            return self::FAILURE;
-        }
+        if (!File::exists($stubPath)) 
+            {
+                $this->error("No se encontró el archivo stub en: {$stubPath}");
+                return self::FAILURE;
+            }
 
         $stubContent = File::get($stubPath);
 
