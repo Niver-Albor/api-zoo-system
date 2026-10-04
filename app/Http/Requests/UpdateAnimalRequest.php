@@ -26,7 +26,7 @@ class UpdateAnimalRequest extends ApiFormRequest
         return [
             'habitat_id'        => 'sometimes|integer|exists:habitats,id',
             'species_id'        => 'sometimes|integer|exists:species,id',
-            'code'              => 'sometimes|string|max:100|unique:animals,code',
+            'code'              => 'sometimes|string|max:100|unique:animals,code,' . $this->route('code') . ',code',
             'name'              => 'sometimes|string|max:100',
             'sex'               => 'sometimes|in:male,female,unknown',
             'birth_date'        => 'nullable|sometimes|date|before_or_equal:today',

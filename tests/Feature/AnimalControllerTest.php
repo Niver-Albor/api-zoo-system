@@ -176,27 +176,76 @@ test('Falla al consultar con un code invalido', function () {
 });
 
 test('Modificación correcta de campos', function () {
-    $response = $this->get('/');
+    $createPermission = Permission::factory()->create(['name' => 'animals.update']);
+    $this->role->permissions()->sync($createPermission->id);
 
-    $response->assertStatus(200);
+    Animal::factory()->create(['code' => 'LEO-001']);
+
+    $payload = [
+        'code'              => 'leo-999   ',
+        'name'              => 'Simba',
+        'sex'               => 'female',
+        'birth_date'        => '2000-01-01',
+        'admission_date'    => '2020-01-01',
+        'health_status'     => 'quarantine'
+    ];
+
+    $response = $this->putJson('api/animals/LEO-001', $payload);
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonFragment([
+            'code' => 'LEO-999',
+            'health_status' => 'quarantine'
+        ]);
 });
 
 test('Permite conservar el mismo code si pertenece al mismo animal', function() {
-    $response = $this->get('/');
+    $createPermission = Permission::factory()->create(['name' => 'animals.update']);
+    $this->role->permissions()->sync($createPermission->id);
 
-    $response->assertStatus(200);
+    Animal::factory()->create(['code' => 'LEO-001']);
+
+    $payload = [
+        'code'              => 'leo-001   '
+    ];
+
+    $response = $this->putJson('api/animals/LEO-001', $payload);
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonFragment([
+            'code' => 'LEO-001',
+        ]);
 });
 
 test('Falla si code ya esta en uso', function () {
-    $response = $this->get('/');
+    $createPermission = Permission::factory()->create(['name' => 'animals.update']);
+    $this->role->permissions()->sync($createPermission->id);
 
-    $response->assertStatus(200);
+    Animal::factory()->create(['code' => 'LEO-001']);
+    Animal::factory()->create(['code' => 'LEO-002']);
+
+    $payload = [
+        'code'              => 'leo-001   '
+    ];
+
+    $response = $this->putJson('api/animals/LEO-002', $payload);
+
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 });
 
 test('Falla si se intenta actualizar un registro inexistente', function () {
-    $response = $this->get('/');
+    $createPermission = Permission::factory()->create(['name' => 'animals.update']);
+    $this->role->permissions()->sync($createPermission->id);
 
-    $response->assertStatus(200);
+    Animal::factory()->create(['code' => 'LEO-001']);
+
+    $payload = [
+        'code'              => 'leo-002   '
+    ];
+
+    $response = $this->putJson('api/animals/LEO-002', $payload);
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST);
 });
 
 test('Elimina un registro correctamente', function () {
