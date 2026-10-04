@@ -28,7 +28,7 @@ class UpdateAnimalRequest extends ApiFormRequest
             'code'              => 'sometimes|string|max:100|unique:animals,code',
             'name'              => 'sometimes|string|max:100',
             'sex'               => 'sometimes|in:male,female,unknown',
-            'birth_date'        => 'sometimes|date|before_or_equal:today',
+            'birth_date'        => 'nullable|sometimes|date|before_or_equal:today',
             'admission_date'    => 'sometimes|date|before_or_equal:today',
             'health_status'     => 'sometimes|in:healthy,treatment,quarantine',
         ];

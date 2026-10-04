@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Business\Entities\AnimalEntity;
 use App\Business\Services\CreateAnimalService;
+use App\Business\Services\UpdateAnimalService;
 use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
@@ -16,7 +17,8 @@ class AnimalController extends Controller
     use ApiResponse;
 
     public function __construct(
-        protected CreateAnimalService $createAnimalService
+        protected CreateAnimalService $createAnimalService,
+        protected UpdateAnimalService $updateAnimalService
     ){}
 
     public function index(Request $request)
@@ -66,16 +68,17 @@ class AnimalController extends Controller
 
         $animal = $this->createAnimalService->execute($animalEntity);
 
-        return $this->successResponse(data: $animal, code: Response::HTTP_CREATED);
+        return $this->successResponse(
+            data: $animal, 
+            message: 'Animal creado exitosamente.', 
+            code: Response::HTTP_CREATED);
     }
 
     public function update(UpdateAnimalRequest $request, string $code)
     {
         $validatedData = $request->validated();
-        $animal = Animal::where('code', $code)->firstOrFail();
 
-        $animal->update($validatedData);
-        $animal->refresh();
+        $animal = $this->updateAnimalService->execute($validatedData, $code);
 
         return $this->successResponse(
             data: $animal,

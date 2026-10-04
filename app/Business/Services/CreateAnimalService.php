@@ -7,12 +7,12 @@ use App\Models\Animal;
 
 class CreateAnimalService
 {
-    public function execute(AnimalEntity $animalEntity)
+    public function execute(AnimalEntity $entity)
     {
-        $animal = Animal::create($animalEntity->toArray());
+        $animal = Animal::create($entity->toArray());
 
-        $animalEntity->id = $animal->id;
+        $entity->id = $animal->id;
 
-        return $animalEntity->toArray();
+        return $entity->toArray();
     }
 }

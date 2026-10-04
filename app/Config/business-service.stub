@@ -7,12 +7,7 @@ namespace App\Business\Services;
 
 class {{class}}
 {
-    public function __construct()
-    {
-        //
-    }
-
-    public function execute({{parameterType}} $data)
+    public function execute({{parameterType}} $entity)
     {
         // Lógica de negocio aquí
     }
