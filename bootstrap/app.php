@@ -30,6 +30,16 @@ return Application::configure(basePath: dirname(__DIR__))
                     ], Response::HTTP_BAD_REQUEST);
                 }
         });
+        $exceptions->render(function (DomainException $e, $request) {
+            if ($request->is('api/*'))
+                {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $e->getMessage(),
+                        'data' => null
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+        });
     })
     ->withCommands([
         __DIR__.'/../app/Console/Commands',
