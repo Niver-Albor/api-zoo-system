@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class UpdateAnimalRequest extends ApiFormRequest
 {
@@ -32,5 +33,13 @@ class UpdateAnimalRequest extends ApiFormRequest
             'admission_date'    => 'sometimes|date|before_or_equal:today',
             'health_status'     => 'sometimes|in:healthy,treatment,quarantine',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if (isset($this->code))
+            $this->merge([
+                'code' => strtoupper(trim($this->code))
+            ]);
     }
 }
