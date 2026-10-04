@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Override;
 
-class StoreAnimalRequest extends FormRequest
+class StoreAnimalRequest extends ApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -35,7 +35,6 @@ class StoreAnimalRequest extends FormRequest
         ];
     }
 
-    #[Override]
     protected function prepareForValidation()
     {
         $this->merge([
