@@ -1,11 +1,11 @@
 name: Feature Tests
 
-
+# Solo se ejecuta cuando hay push en la rama main o develop
 on:
   push:
-    branches: [ "**" ]  # Todas las ramas
+    branches: [ "main", "develop" ]  
   pull_request:
-    branches: [ "**" ]
+    branches: [ "main", "develop" ]
 
 jobs:
   feature-tests:
