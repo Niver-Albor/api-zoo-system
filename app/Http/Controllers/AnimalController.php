@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Business\Entities\AnimalEntity;
 use App\Business\Services\CreateAnimalService;
 use App\Business\Services\IndexAnimalService;
+use App\Business\Services\ShowAnimalService;
 use App\Business\Services\UpdateAnimalService;
 use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
@@ -13,12 +14,15 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use function PHPUnit\Framework\isEmpty;
+
 class AnimalController extends Controller
 {
     use ApiResponse;
 
     public function __construct(
         protected IndexAnimalService $indexAnimalService,
+        protected ShowAnimalService $showAnimalService,
         protected CreateAnimalService $createAnimalService,
         protected UpdateAnimalService $updateAnimalService
     ){}
@@ -44,13 +48,18 @@ class AnimalController extends Controller
 
     public function show(string $code)
     {
-        $animal = Animal::where('code', 'LIKE', "{$code}%")->get();
+        $payLoad = $this->showAnimalService->showAnimal($code);
 
-        if ($animal->isEmpty())
+        // dd($payLoad);
+
+        if ($payLoad)
+            {
+                return $this->successResponse(data: $payLoad, code: Response::HTTP_FOUND);
+            }
+        else
             {
                 return $this->errorResponse(message:'Código invalido.', code:Response::HTTP_NOT_FOUND);
             }
-        return $this->successResponse(data: $animal, code: Response::HTTP_FOUND);
     }
 
     public function store(StoreAnimalRequest $request)
