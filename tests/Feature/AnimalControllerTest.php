@@ -249,13 +249,21 @@ test('Falla si se intenta actualizar un registro inexistente', function () {
 });
 
 test('Elimina un registro correctamente', function () {
-    $response = $this->get('/');
+    $createPermission = Permission::factory()->create(['name' => 'animals.delete']);
+    $this->role->permissions()->sync($createPermission->id);
 
-    $response->assertStatus(200);
+    Animal::factory()->create(['code' => 'LEO-001']);
+
+    $response = $this->deleteJson('api/animals/LEO-001');
+
+    $response->assertStatus(Response::HTTP_OK);
 });
 
 test('Falla si se intenta eliminar un registro inexistente', function () {
-    $response = $this->get('/');
+    $createPermission = Permission::factory()->create(['name' => 'animals.delete']);
+    $this->role->permissions()->sync($createPermission->id);
 
-    $response->assertStatus(200);
+    $response = $this->deleteJson('api/animals/LEO-999');
+
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 });
