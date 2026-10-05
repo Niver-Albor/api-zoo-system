@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 beforeEach(function () {
     $this->role = Role::factory()->create();
     $this->user = User::factory()->create(['role_id' => $this->role->id]);
+
+    $this->actingAs($this->user);
 });
 
 uses(RefreshDatabase::class);
