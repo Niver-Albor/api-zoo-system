@@ -140,16 +140,17 @@ test('Retorna el listado correcto de animales.', function () {
     $createPermission = Permission::factory()->create(['name' => 'animals.view']);
     $this->role->permissions()->sync($createPermission->id);
 
-    Animal::factory(50)->create();
+    $animals = Animal::factory(50)->create();
     $per_page = 10;
     $page = 2;
     $offset = $page * $per_page + 1;
+    $expectedFirstAnimalInPage = $animals->get(20);
 
     $response = $this->get("/api/animals?per_page={$per_page}&page={$page}");
 
     $response->assertStatus(Response::HTTP_OK)
         ->assertJsonCount($per_page, 'data')
-        ->assertJsonPath('data.0.id', $offset);
+        ->assertJsonPath('data.0.id', $expectedFirstAnimalInPage->id);
 });
 
 test('Retorna la estructura JSON esperada para un code existente', function () {
