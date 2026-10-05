@@ -7,7 +7,7 @@ use App\Models\Animal;
 
 class CreateAnimalService
 {
-    public function execute(AnimalEntity $entity)
+    public function createAnimal(AnimalEntity $entity)
     {
         $animal = Animal::create($entity->toArray());
 

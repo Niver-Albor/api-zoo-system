@@ -7,7 +7,7 @@ use App\Business\Entities\AnimalEntity;
 
 class UpdateAnimalService
 {
-    public function execute(Array $data, string $code)
+    public function updateAnimal(Array $data, string $code)
     {
         $animal = Animal::where('code', $code)->firstOrFail();
 
