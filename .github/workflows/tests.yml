@@ -67,12 +67,12 @@ jobs:
       run: php artisan migrate --env=testing --force
 
     # 7. Ejecutar exclusivamente tus Feature Tests
-    - name: Correr Feature Tests
+    - name: Correr Tests
       env:
         DB_CONNECTION: mariadb
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
-        DB_DATABASE: testing_db
+        DB_DATABASE: apizoo_test
         DB_USERNAME: testing
         DB_PASSWORD: testing_password
       # Si usas Pest:
