@@ -18,7 +18,7 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next, string $permission): Response
     {
-        $user = User::find(1);
+        $user = $request->user();
 
         if (!$user || !$user->hasPermission($permission))
             {
