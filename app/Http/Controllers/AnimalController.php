@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Business\Entities\AnimalEntity;
 use App\Business\Services\CreateAnimalService;
+use App\Business\Services\DestroyAnimalService;
 use App\Business\Services\IndexAnimalService;
 use App\Business\Services\ShowAnimalService;
 use App\Business\Services\UpdateAnimalService;
+use App\Http\Requests\FindAnimalRequest;
 use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
@@ -24,7 +26,8 @@ class AnimalController extends Controller
         protected IndexAnimalService $indexAnimalService,
         protected ShowAnimalService $showAnimalService,
         protected CreateAnimalService $createAnimalService,
-        protected UpdateAnimalService $updateAnimalService
+        protected UpdateAnimalService $updateAnimalService,
+        protected DestroyAnimalService $destroyAniamlService
     ){}
 
     public function index(Request $request)
@@ -46,9 +49,9 @@ class AnimalController extends Controller
         return $this->successResponse(data:$payLoad,code:Response::HTTP_OK);
     }
 
-    public function show(string $code)
+    public function show(FindAnimalRequest $request)
     {
-        $payLoad = $this->showAnimalService->showAnimal($code);
+        $payLoad = $this->showAnimalService->showAnimal($request->query('code'));
 
         // dd($payLoad);
 
@@ -56,10 +59,8 @@ class AnimalController extends Controller
             {
                 return $this->successResponse(data: $payLoad, code: Response::HTTP_FOUND);
             }
-        else
-            {
-                return $this->errorResponse(message:'Código invalido.', code:Response::HTTP_NOT_FOUND);
-            }
+
+        return $this->errorResponse(message:'Código invalido.', code:Response::HTTP_NOT_FOUND);
     }
 
     public function store(StoreAnimalRequest $request)
@@ -87,17 +88,24 @@ class AnimalController extends Controller
         );
     }
 
-    public function destroy(string $code)
+    public function destroy(FindAnimalRequest $request)
     {
-        $animal = Animal::where('code', $code)->firstOrFail();
+        $data = $request->validated();
 
-        $animal->delete();
-        $animal->refresh();
+        $payLoad = $this->destroyAniamlService->destroyAnimal($data['code']);
 
-        return $this->successResponse(
-            data: $animal,
-            message: 'Animal eliminado correctamente',
-            code: Response::HTTP_OK
+        if (!$payLoad)
+            {
+                return $this->successResponse(
+                    data: null,
+                    message: 'Animal eliminado correctamente',
+                    code: Response::HTTP_OK
+                );
+            }
+
+        return $this->errorResponse(
+            message: 'Código invalido',
+            code: Response::HTTP_UNPROCESSABLE_ENTITY
         );
-    }
+}
 }
