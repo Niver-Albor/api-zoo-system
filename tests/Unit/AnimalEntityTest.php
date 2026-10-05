@@ -15,7 +15,7 @@ test('Puede ser creado con todas las propiedades', function () {
         'health_status' => 'quarantine'
     ];
 
-    $animal = AnimalEntity::fromArray($data);
+    $animal = AnimalEntity::createFromArray($data);
 
     $this->assertEquals('Simba', $animal->name);
     $this->assertEquals(5, $animal->habitatId);
@@ -30,7 +30,7 @@ test('Code normalizado', function () {
         'name' => 'Simba',
     ];
 
-    $animal = AnimalEntity::fromArray($data);
+    $animal = AnimalEntity::createFromArray($data);
 
     $this->assertEquals('QWERTY-123', $animal->code);
 });
