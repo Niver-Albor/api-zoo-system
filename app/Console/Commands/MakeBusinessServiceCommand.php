@@ -72,7 +72,7 @@ class MakeBusinessServiceCommand extends Command
                 $useEntity = "use App\Business\Entities\\{$entityName};";
                 $parameterType = $entityName;
             } else {
-                $parameterType = '?Array';
+                $parameterType = 'array';
             }
         }
 
