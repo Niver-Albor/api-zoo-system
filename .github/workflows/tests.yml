@@ -1,0 +1,79 @@
+name: Feature Tests
+
+
+on:
+  push:
+    branches: [ "**" ]  # Todas las ramas
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  feature-tests:
+    runs-on: ubuntu-latest  # Nube
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: apizoo_test
+          MYSQL_USER: testing
+          MYSQL_PASSWORD: testing_password
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    # 1. Copiar tu código fuente a la máquina virtual
+    - name: Checkout del código
+      uses: actions/checkout@v4
+
+    # 2. Configurar el entorno de PHP y habilitar las extensiones necesarias
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: pdo_mysql, pdo, mbstring, bcmath
+        coverage: none
+
+    # 3. Cachear vendor para que las futuras ejecuciones sean ultrarrápidas
+    - name: Cachear dependencias de Composer
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    # 4. Instalar librerías desde composer.lock
+    - name: Instalar dependencias de Composer
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    # 5. Configurar el archivo .env para el entorno de pruebas
+    - name: Preparar entorno de testing
+      run: |
+        cp .env.example .env.testing
+        php artisan key:generate --env=testing
+
+    # 6. Correr las migraciones en el MariaDB de la nube
+    - name: Ejecutar Migraciones
+      env:
+        DB_CONNECTION: mariadb
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: apizoo_test
+        DB_USERNAME: testing
+        DB_PASSWORD: testing_password
+      run: php artisan migrate --env=testing --force
+
+    # 7. Ejecutar exclusivamente tus Feature Tests
+    - name: Correr Feature Tests
+      env:
+        DB_CONNECTION: mariadb
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: testing_db
+        DB_USERNAME: testing
+        DB_PASSWORD: testing_password
+      # Si usas Pest:
+      run: php artisan test 
