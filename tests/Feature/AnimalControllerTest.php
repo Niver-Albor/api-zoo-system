@@ -80,7 +80,7 @@ test('Falla al crear cuando el code no es único', function () {
     $response = $this->postJson('/api/animals', $payload);
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['code']);
+        ->assertJsonValidationErrors(['code'], 'message');
 });
 
 test('Falla cuando no se envían los parametros obligatorios', function () {
@@ -90,7 +90,7 @@ test('Falla cuando no se envían los parametros obligatorios', function () {
     $response = $this->postJson('/api/animals', []);
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['habitat_id', 'species_id', 'code', 'name']);
+        ->assertJsonValidationErrors(['habitat_id', 'species_id', 'code', 'name'], 'message');
 });
 
 test('Falla al crear con llaves foraneas invalidas', function () {
@@ -107,7 +107,7 @@ test('Falla al crear con llaves foraneas invalidas', function () {
     $response = $this->postJson('/api/animals', $payload);
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['habitat_id', 'species_id']);
+        ->assertJsonValidationErrors(['habitat_id', 'species_id'], 'message');
 });
 
 test('Falla al crear si se ingresan formatos invalidos', function () {
@@ -131,7 +131,7 @@ test('Falla al crear si se ingresan formatos invalidos', function () {
     $response = $this->postJson('/api/animals', $payload);
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['sex', 'birth_date', 'admission_date', 'health_status']);
+        ->assertJsonValidationErrors(['sex', 'birth_date', 'admission_date', 'health_status'], 'message');
 });
 
 test('Retorna el listado correcto de animales.', function () {
@@ -171,8 +171,8 @@ test('Falla al consultar con un code invalido', function () {
 
     $response = $this->get("/api/animals/LEO-999");
 
-    $response->assertStatus(Response::HTTP_NOT_FOUND)
-        ->assertJsonFragment(['message' => 'Código invalido.']);
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrors(['code'], 'message');
 });
 
 test('Modificación correcta de campos', function () {
