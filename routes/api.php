@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AnimalController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+// Módulos de Animales.
 Route::get('/animals', [AnimalController::class, 'index'])
     ->middleware('permission:animals.view');
 
@@ -17,3 +19,22 @@ Route::put('/animals/{code}', [AnimalController::class, 'update'])
 
 Route::delete('/animals/{code}', [AnimalController::class, 'destroy'])
     ->middleware('permission:animals.delete');
+
+// Módulo de Usuarios.
+Route::post('/users', [UserController::class, 'store']);
+
+Route::post('/login', [UserController::class, 'login']);
+
+Route::post('/lougout', [UserController::class, 'logout']);
+
+Route::middleware(['auth'])->group(function() {
+    Route::get('/users', [UserController::class, 'index'])
+        ->middleware('permission:users.view');
+
+    Route::get('/users/{id}', [UserController::class, 'show'])
+        ->middleware('permission:users.view');
+
+    Route::put('/users/{id}', [UserController::class, 'update']);
+
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+});
