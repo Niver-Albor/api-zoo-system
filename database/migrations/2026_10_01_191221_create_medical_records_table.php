@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('medical_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('animal_id')->constrained('animals')->onDelete('restrict');
-            $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
+            $table->uuid('user_id');
             $table->foreignId('replaces_id')->nullable()->constrained('medical_records')->onDelete('restrict');
             $table->enum('record_type', ['checkup', 'vaccination', 'deworming', 'emergency', 'correction']);
             $table->text('diagnosis')->nullable();
@@ -22,6 +22,8 @@ return new class extends Migration
             $table->date('performed_at');
             $table->date('next_checkup_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('restrict');
         });
     }
 

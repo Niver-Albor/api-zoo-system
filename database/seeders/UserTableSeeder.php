@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserTableSeeder extends Seeder
 {
@@ -18,9 +19,10 @@ class UserTableSeeder extends Seeder
         $vetRoleId = Role::where('name', 'veterinarian')->value('id');
 
         User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'role_id' => $adminRoleId
+            'name'      => 'Admin',
+            'email'     => 'admin@example.com',
+            'password'  => Hash::make('qwerty'),
+            'role_id'   => $adminRoleId
         ]);
 
         User::factory()->create([
