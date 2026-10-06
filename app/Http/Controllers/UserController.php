@@ -27,7 +27,17 @@ class UserController extends Controller
                 return $this->errorResponse('Credenciales invalidas', Response::HTTP_UNAUTHORIZED);
             }
         
-        return $this->successResponse($user->toArray);
+        $token = $user->createToken('auth_token')->plainTextToken;
+        
+        return $this->successResponse(
+            [
+                'user'          => $user->toArray,
+                'access_token'  => $token,
+                'token_type' => 'Bearer'
+            ],
+            'Inicio de Sesión exitoso!',
+            Response::HTTP_OK
+        );
     }
 
     public function store(StoreUserRequest $request)

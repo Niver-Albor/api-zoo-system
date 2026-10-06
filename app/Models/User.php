@@ -10,11 +10,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use OwenIt\Auditing\Contracts\Auditable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements Auditable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasUuids, SoftDeletes, \OwenIt\Auditing\Auditable;
+    use HasFactory, Notifiable, HasUuids, SoftDeletes, \OwenIt\Auditing\Auditable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
