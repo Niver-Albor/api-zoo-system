@@ -27,6 +27,13 @@ class PermissionAndRoleTableSeeder extends Seeder
 
             // Módulo de Hábitats
             ['name' => 'habitats.manage', 'description' => 'Administrar hábitats y capacidades'],
+
+            // Módulo de Usuarios
+            ['name' => 'users.create', 'description' => 'Registrar nuevos usuarios'],
+            ['name' => 'users.view_any', 'description' => 'Ver listado general de los usuarios'],
+            ['name' => 'users.update_any', 'description' => 'Editar datos de cualquier usuario'],
+            ['name' => 'users.update_own', 'description' => 'Editar los registros de solo su usuario'],
+            ['name' => 'users.delete_any', 'description' => 'Eliminar o dar de baja a cualquier usuario']
         ];
 
         foreach ($permissions as $permission)
