@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('audits', function (Blueprint $table) {
-            $table->string('auditable_id', 255)->change();
-            $table->string('user_id', 255)->nullable()->change();
+        Schema::table('users', function (Blueprint $table) {
+            $table->uuid('uuid')->unique();
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('audits', function (Blueprint $table) {
-            //
+        Schema::table('user', function (Blueprint $table) {
+            $table->dropColumn('uuid');
         });
     }
 };
