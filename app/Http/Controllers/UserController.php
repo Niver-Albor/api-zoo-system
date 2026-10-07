@@ -47,6 +47,25 @@ class UserController extends Controller
         );
     }
 
+    public function logout(Request $request)
+    {
+        // Revisa si la petición tiene un token de autenticación y lo elimina.
+        if ($request->user()->currentAccessToken() instanceof \Laravel\Sanctum\PersonalAccessToken) {
+            $request->user()->currentAccessToken()->delete();
+        }
+        // Si la petición es de un cliente web (cookies), elimina la sesión.
+        if ($request->hasSession()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        return $this->successResponse(
+            data: null,
+            message: 'Sesión cerrada exitosamente'
+        );
+    }
+
     public function store(StoreUserRequest $request)
     {
         $this->authorize('create');
