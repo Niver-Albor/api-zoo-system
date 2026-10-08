@@ -33,7 +33,10 @@ class PermissionAndRoleTableSeeder extends Seeder
             ['name' => 'users.view_any', 'description' => 'Ver listado general de los usuarios'],
             ['name' => 'users.update_any', 'description' => 'Editar datos de cualquier usuario'],
             ['name' => 'users.update_own', 'description' => 'Editar los registros de solo su usuario'],
-            ['name' => 'users.delete_any', 'description' => 'Eliminar o dar de baja a cualquier usuario']
+            ['name' => 'users.delete_any', 'description' => 'Eliminar o dar de baja a cualquier usuario'],
+
+            //Módulo de Roles
+            ['name' => 'roles.assign', 'description' => 'Asignar roles']
         ];
 
         foreach ($permissions as $permission)
@@ -41,7 +44,7 @@ class PermissionAndRoleTableSeeder extends Seeder
                 Permission::firstOrCreate(['name' => $permission['name']], $permission);
             }
 
-        $adminRole = Role::firstOrCreate(['name' => 'admin'], ['description' => 'Administrador general']);
+        $adminRole = Role::firstOrCreate(['name' => 'owner'], ['description' => 'Administrador general']);
         $vetRole = Role::firstOrCreate(['name' => 'veterinarian'], ['description' => 'Personal médico']);
 
         $allPermissionIds = Permission::pluck('id');

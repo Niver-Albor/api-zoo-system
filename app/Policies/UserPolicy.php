@@ -36,13 +36,27 @@ class UserPolicy
      */
     public function update(User $authUser, User $targetUser): bool
     {
-        if ($authUser->hasPermission('users.update_any')) 
-            return true;
+        // Si se puede editar a si mismo, o a otros
+        $canEditProfile = $authUser->id === $targetUser->id || $authUser->hasPermission('users.update_any');
 
-        if ($authUser->hasPermission('users.update_own'))
-            return $authUser->id === $targetUser->id;
-        
-        return false;
+        if (! $canEditProfile)
+            return false;
+
+        if (request()->has('role_name'))
+            {
+                $requestedRole = request()->input('role_name');
+                // No puede cambiar su propio rol
+                if ($authUser->id === $targetUser->id) return false;
+
+                if (! $authUser->hasPermission('roles.assign')) return false;
+                
+                // No se pueden asignar esos roles
+                $protectedRole = ['owner', 'super-admin'];
+                if (in_array($requestedRole, $protectedRole, true) && ! $authUser->hasRole('super-admin'))
+                    return false;
+            }
+
+        return true;
     }
 
     /**

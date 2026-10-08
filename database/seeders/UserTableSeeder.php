@@ -15,7 +15,7 @@ class UserTableSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminRoleId = Role::where('name', 'admin')->value('id');
+        $adminRoleId = Role::where('name', 'owner')->value('id');
         $vetRoleId = Role::where('name', 'veterinarian')->value('id');
 
         User::factory()->create([

@@ -23,18 +23,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 // Módulo de Usuarios.
-Route::post('/users', [UserController::class, 'store']);
-
-Route::post('/login', [UserController::class, 'login']);
+Route::post('/login', [UserController::class, 'login'])
+    ->name('login');
 
 Route::middleware(['auth:sanctum'])->group(function() {
+    Route::post('/users', [UserController::class, 'store'])
+        ->middleware('permission:users.create');
+
+    Route::get('/users/who/{token}', [UserController::class, 'who'])
+        ->middleware('permission:users.view_any');
+
     Route::get('/users', [UserController::class, 'index'])
         ->middleware('permission:users.view');
 
     Route::get('/users/{id}', [UserController::class, 'show'])
         ->middleware('permission:users.view');
 
-    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::put('/users/{user}', [UserController::class, 'update'])
+        ->middleware('permission:users.update_own');
 
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 

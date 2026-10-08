@@ -25,7 +25,10 @@ class User extends Authenticatable implements Auditable
         'name',
         'email',
         'password',
-        'role_id'
+        'role_id',
+        'uuid',
+        'remember_token',
+        'email_verified_at'
     ];
 
     /**
@@ -36,6 +39,9 @@ class User extends Authenticatable implements Auditable
     protected $hidden = [
         'password',
         'remember_token',
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
     /**
@@ -63,5 +69,15 @@ class User extends Authenticatable implements Auditable
                 return true;
             }
         return false;
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    public function hasRoles(string $roleName): bool
+    {
+        return $this->roles->contains('name', $roleName);
     }
 }

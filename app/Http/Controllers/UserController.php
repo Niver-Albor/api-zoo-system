@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\Entities\UserEntity;
+use App\Business\Services\CreateUserService;
+use App\Business\Services\UpdateUserService;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,6 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
 class UserController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        protected CreateUserService $createUserService,
+        protected UpdateUserService $updateUserService
+    ) {}
 
     public function login(LoginUserRequest $request)
     {
@@ -68,11 +77,43 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
-        $this->authorize('create');
+        $this->authorize('create', User::class);
+
+        $userEntity = UserEntity::createFromArray($request->validated());
+
+        $response = $this->createUserService->createUser($userEntity);
+
+        if ($response)
+            {
+                return $this->successResponse($response, 'Usuario registrado correctamente', Response::HTTP_CREATED);
+            }
+        
+        return $this->errorResponse();
     }
 
-    public function update(FormRequest $request, User $user)
+    public function who(Request $request, string $token)
+    {
+        $user = User::where('uuid', $token)->first();
+
+        if ($user)
+            {
+                return $this->successResponse($user->toArray());
+            }
+        
+        return $this->successResponse($request->user());
+    }
+
+    public function update(UpdateUserRequest $request, User $user)
     {
         $this->authorize('update', $user);
+
+        $response = $this->updateUserService->updateUser($user->id, $request->validated());
+
+        if ($response)
+            {
+                return $this->successResponse($response);
+            }
+        
+        return $this->errorResponse();
     }
 }
