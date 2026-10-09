@@ -12,11 +12,11 @@ class UpdateUserService
     /**
      * Actualiza un usuario existente a partir de una clave primaria o UUID.
      *
-     * @param string $identifier ID o UUID del usuario.
+     * @param User $user Target user to update.
      * @param array $data Datos validados de la solicitud.
      * @return User
      */
-    public function updateUser(string $identifier, array $data): User
+    public function updateUser(User $user, array $data): User
     {
         // 1. Capa de seguridad defensiva: Eliminar 'uuid' si venía en el arreglo
         unset($data['uuid']);
@@ -37,16 +37,8 @@ class UpdateUserService
         }
 
         // 4. Buscar el registro por UUID o ID primario
-        $user = User::where('uuid', $identifier)
-            ->orWhere('id', $identifier)
-            ->with('roles')
-            ->firstOrFail();
+        $user->update($data);
 
-        dd($user);
-
-
-        $user->update($updateData);
-
-        return $user->fresh();
+        return $user->fresh()->load('roles');
     }
 }

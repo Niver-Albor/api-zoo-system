@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Business\Entities\UserEntity;
 use App\Business\Services\CreateUserService;
 use App\Business\Services\UpdateUserService;
 use App\Http\Requests\LoginUserRequest;
@@ -109,7 +108,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        $responseUser = $this->updateUserService->updateUser($user->id, $request->validated());
+        $responseUser = $this->updateUserService->updateUser($user, $request->validated());
 
         if ($responseUser)
             {
