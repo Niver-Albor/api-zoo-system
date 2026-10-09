@@ -10,10 +10,10 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Traits\ApiResponse;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -79,13 +79,15 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $userEntity = UserEntity::createFromArray($request->validated());
+        $responseUser = $this->createUserService->createUser($request->validated());
 
-        $response = $this->createUserService->createUser($userEntity);
-
-        if ($response)
+        if ($responseUser)
             {
-                return $this->successResponse($response, 'Usuario registrado correctamente', Response::HTTP_CREATED);
+                return $this->successResponse(
+                    new UserResource($responseUser), 
+                    'Usuario registrado correctamente', 
+                    Response::HTTP_CREATED
+                    );
             }
         
         return $this->errorResponse();
@@ -100,18 +102,18 @@ class UserController extends Controller
                 return $this->successResponse($user->toArray());
             }
         
-        return $this->successResponse($request->user());
+        return $this->successResponse($request->user(), 'Datos del usuario actual');
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
         $this->authorize('update', $user);
 
-        $response = $this->updateUserService->updateUser($user->id, $request->validated());
+        $responseUser = $this->updateUserService->updateUser($user->id, $request->validated());
 
-        if ($response)
+        if ($responseUser)
             {
-                return $this->successResponse($response);
+                return $this->successResponse(new UserResource($responseUser), 'Usuario actualizado existosamente');
             }
         
         return $this->errorResponse();

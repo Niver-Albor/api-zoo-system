@@ -2,10 +2,20 @@
 
 namespace App\Traits;
 
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
 trait ApiResponse
 {
     public function successResponse($data, $message = 'Operación existosa', $code = 200)
     {
+        if ($data instanceof JsonResource || $data instanceof ResourceCollection) {
+            return $data->additional([
+                'success' => true,
+                'message' => $message,
+            ])->response()->setStatusCode($code);
+        }
+
         return response()->json([
             'success' => true,
             'message' => $message,

@@ -2,7 +2,6 @@
 
 namespace App\Business\Services;
 
-use App\Business\Entities\UserEntity;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +16,7 @@ class UpdateUserService
      * @param array $data Datos validados de la solicitud.
      * @return User
      */
-    public function updateUser(string $identifier, array $data)
+    public function updateUser(string $identifier, array $data): User
     {
         // 1. Capa de seguridad defensiva: Eliminar 'uuid' si venía en el arreglo
         unset($data['uuid']);
@@ -37,21 +36,17 @@ class UpdateUserService
             $data['password'] = Hash::make($data['password']);
         }
 
-        // 4. Transformar los datos a la entidad de dominio
-        $userEntity = UserEntity::createFromArray($data);
-
-        // 5. Buscar el registro por UUID o ID primario
+        // 4. Buscar el registro por UUID o ID primario
         $user = User::where('uuid', $identifier)
             ->orWhere('id', $identifier)
+            ->with('roles')
             ->firstOrFail();
 
-        // 6. Extraer solo los campos presentes para actualizar
-        $updateData = $userEntity->toArrayForUpdate();
+        dd($user);
 
-        if (!empty($updateData)) {
-            $user->update($updateData);
-        }
 
-        return $user->fresh()->toArray();
+        $user->update($updateData);
+
+        return $user->fresh();
     }
 }
