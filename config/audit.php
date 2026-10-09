@@ -29,7 +29,9 @@ return [
         'guards' => [
             'web',
             'api',
+            'sanctum'
         ],
+        'model' => App\Models\User::class,
         'resolver' => OwenIt\Auditing\Resolvers\UserResolver::class,
     ],
 
