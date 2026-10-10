@@ -30,7 +30,7 @@ class MakeBusinessServiceCommand extends Command
         $name = $this->argument('name');
         $modelName = $this->option('model');
 
-        if (is_null($modelName))
+        if (empty($modelName))
             {
                 $modelName = $this->selectModelInteractively();
             }
@@ -66,8 +66,8 @@ class MakeBusinessServiceCommand extends Command
         }
 
         $content = str_replace(
-            ['{{class}}', '{{useModel}}', '{{parameterType}}'],
-            [$className, $useModel, $parameterType],
+            ['{{class}}', '{{useModel}}', '{{parameterType}}', '{{modelName}}'],
+            [$className, $useModel, $parameterType, $modelName],
             $stubContent
         );
 

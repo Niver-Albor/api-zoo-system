@@ -7,8 +7,9 @@ use App\Business\DTOs\BaseDTO;
 
 class {{class}}
 {
-    public function execute(BaseDTO $dto)
+    public function execute({{modelName}} $model, BaseDTO $dto): {{modelName}}
     {
         // Lógica de negocio aquí
+        return $model;
     }
 }
