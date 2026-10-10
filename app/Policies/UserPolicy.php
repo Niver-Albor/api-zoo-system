@@ -62,10 +62,15 @@ class UserPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, string $id): bool
+    public function delete(User $authUser, User $targetUser): bool
     {
+        if (! $authUser->hasPermission('users.delete_any'))
+            return false;
+        // No puede desactivar su propia cuenta.
+        if ($authUser->id === $targetUser->id)
+            return false;
 
-        return false;
+        return true;
     }
 
     /**

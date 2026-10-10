@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Business\DTOs\SaveUserData;
 use App\Business\Services\CreateUserService;
+use App\Business\Services\DeleteUserService;
 use App\Business\Services\UpdateUserService;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
@@ -21,7 +22,8 @@ class UserController extends Controller
 
     public function __construct(
         protected CreateUserService $createUserService,
-        protected UpdateUserService $updateUserService
+        protected UpdateUserService $updateUserService,
+        protected DeleteUserService $deleteUserService
     ) {}
 
     public function login(LoginUserRequest $request)
@@ -95,16 +97,16 @@ class UserController extends Controller
         return $this->errorResponse();
     }
 
-    public function who(Request $request, string $token)
+    public function who(Request $request, User $user)
     {
-        $user = User::where('uuid', $token)->first();
+        $user->load('roles');
 
         if ($user)
             {
-                return $this->successResponse($user->toArray());
+                return $this->successResponse(new UserResource($user));
             }
         
-        return $this->successResponse($request->user(), 'Datos del usuario actual');
+        return $this->successResponse(new UserResource($request->user()), 'Datos del usuario actual');
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -121,5 +123,19 @@ class UserController extends Controller
             }
         
         return $this->errorResponse();
+    }
+
+    public function destroy(User $user)
+    {
+        $this->authorize('delete', $user);
+
+        $deleted = $this->deleteUserService->deleteUser($user);
+
+        if ($deleted)
+            {
+                return $this->successResponse(null, 'Usuario eliminado correctamente');
+            }
+        
+        return $this->errorResponse('No se ha eliminado el usuario');
     }
 }
