@@ -2,11 +2,12 @@
 
 namespace App\Business\Services;
 
+use App\Business\DTOs\BaseDTO;
 {{useModel}}
 
 class {{class}}
 {
-    public function execute({{parameterType}} $entity)
+    public function execute(BaseDTO $dto)
     {
         // Lógica de negocio aquí
     }
