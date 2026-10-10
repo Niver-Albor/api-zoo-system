@@ -18,8 +18,11 @@ class UserPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $authUser, User $targetUser): bool
     {
+        if ($authUser->hasPermission('users.view_any') || $authUser->id === $targetUser->id)
+            return true;
+
         return false;
     }
 

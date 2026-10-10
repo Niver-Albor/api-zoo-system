@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Resources\UserResource;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UserController extends Controller
 {
@@ -97,8 +98,10 @@ class UserController extends Controller
         return $this->errorResponse();
     }
 
-    public function who(Request $request, User $user)
+    public function show(FormRequest $request, User $user)
     {
+        $this->authorize('view', $user);
+
         $user->load('roles');
 
         if ($user)

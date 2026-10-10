@@ -30,13 +30,10 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::post('/users', [UserController::class, 'store'])
         ->middleware('permission:users.create');
 
-    Route::get('/users/who/{user}', [UserController::class, 'who'])
-        ->middleware('permission:users.view_any');
+    Route::get('/users/{user}', [UserController::class, 'show'])
+        ->withTrashed();
 
     Route::get('/users', [UserController::class, 'index'])
-        ->middleware('permission:users.view');
-
-    Route::get('/users/{user}', [UserController::class, 'show'])
         ->middleware('permission:users.view');
 
     Route::put('/users/{user}', [UserController::class, 'update'])
