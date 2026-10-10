@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\DTOs\SaveUserData;
 use App\Business\Services\CreateUserService;
 use App\Business\Services\UpdateUserService;
 use App\Http\Requests\LoginUserRequest;
@@ -78,7 +79,9 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $responseUser = $this->createUserService->createUser($request->validated());
+        $dto = SaveUserData::fromRequest($request);
+
+        $responseUser = $this->createUserService->createUser($dto);
 
         if ($responseUser)
             {

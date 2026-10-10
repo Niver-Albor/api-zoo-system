@@ -26,7 +26,7 @@ class StoreUserRequest extends ApiFormRequest
             'name'      => 'required|string|max:100',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|string',
-            'role_id'   => 'required|integer|exists:roles,id'
+            'role_name'   => 'required|string|exists:roles,name'
         ];
     }
 }
