@@ -2,10 +2,9 @@
 
 namespace App\Business\DTOs;
 
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class SaveUserData
+class SaveUserData extends BaseDTO
 {
     public function __construct(
         public readonly ?string $name = null,
@@ -14,7 +13,7 @@ class SaveUserData
         public readonly ?string $role_name = null,
     ) {}
 
-    public static function fromRequest(StoreUserRequest|UpdateUserRequest $request): self
+    public static function fromRequest(FormRequest $request): self
     {
         
         return new self(

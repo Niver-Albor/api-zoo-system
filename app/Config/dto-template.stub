@@ -4,7 +4,7 @@ namespace App\Business\DTOs;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class {{className}}
+class {{className}} extends BaseDTO
 {
     public function __construct(
         //

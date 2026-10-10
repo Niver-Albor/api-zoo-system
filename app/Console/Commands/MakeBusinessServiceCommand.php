@@ -12,9 +12,8 @@ class MakeBusinessServiceCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'business:service {name : El nombre del servicio} 
-        {--M|model= : El nombre del modelo a importar}
-        {--E|entity : Recibe la entidad de dominio en lugar de datos crudos}';
+    protected $signature = 'make:service {name : El nombre del servicio} 
+        {--M|model= : El nombre del modelo a importar}';
 
     /**
      * The console command description.
@@ -30,7 +29,6 @@ class MakeBusinessServiceCommand extends Command
     {
         $name = $this->argument('name');
         $modelName = $this->option('model');
-        $hasEntity = $this->option('entity');
 
         if (is_null($modelName))
             {
@@ -49,7 +47,7 @@ class MakeBusinessServiceCommand extends Command
         
         File::ensureDirectoryExists(dirname($path));
 
-        $stubPath = app_path('Config\business-service.stub');
+        $stubPath = app_path('Config\service-template.stub');
 
         if (!File::exists($stubPath)) 
             {
@@ -60,25 +58,16 @@ class MakeBusinessServiceCommand extends Command
         $stubContent = File::get($stubPath);
 
         $useModel = '';
-        $useEntity = '';
         $parameterType = 'array';
 
         if ($modelName && $modelName !== 'Ninguno') {
             $modelName = class_basename($modelName);
             $useModel = "use App\Models\\{$modelName};";
-
-            if ($hasEntity) {
-                $entityName = "{$modelName}Entity";
-                $useEntity = "use App\Business\Entities\\{$entityName};";
-                $parameterType = $entityName;
-            } else {
-                $parameterType = 'array';
-            }
         }
 
         $content = str_replace(
-            ['{{class}}', '{{useModel}}', '{{useEntity}}', '{{parameterType}}'],
-            [$className, $useModel, $useEntity, $parameterType],
+            ['{{class}}', '{{useModel}}', '{{parameterType}}'],
+            [$className, $useModel, $parameterType],
             $stubContent
         );
 
@@ -117,7 +106,7 @@ class MakeBusinessServiceCommand extends Command
         array_unshift($models, 'Ninguno');
 
         $selected = $this->choice(
-            '¿Qué modelo deseas vincular a este servicio?',
+            '¿Qué Model deseas vincular a este servicio?',
             $models,
             0
         );
