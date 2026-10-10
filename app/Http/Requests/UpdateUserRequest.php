@@ -29,21 +29,33 @@ class UpdateUserRequest extends ApiFormRequest
         return [
             'name'              => 'sometimes|string',
             'old_password' => array_values(array_filter([
-                $isSelfUpdate ? 'required_with:new_password' : null,
-                'nullable', 'string',
+                $isSelfUpdate ? 'required_with:new_password,new_password_confirmation' : 'prohibited',
+                'nullable', 
+                'string',
                 $isSelfUpdate ? 'current_password' : null,
             ])),
             'new_password'      => array_values(array_filter([
-                'sometimes', 'string', 'min:8',
+                $isSelfUpdate ? 
+                'required_with:old_password,new_password_confirmation' : 'required_with:new_password_confirmation',
+                'sometimes', 
+                'string', 
+                'min:8', 
+                'required_with:confirm_password',
                 $isSelfUpdate ? 'different:old_password' : null
             ])),
-            'confirm_password'  => 'required_with:new_password|nullable|string|same:new_password',
+            'new_password_confirmation'  => array_values(array_filter([
+                $isSelfUpdate ? 'required_with:old_password,new_password' : 'required_with:new_password',
+                'string'
+            ])),
             'role_name'         => [
                 $isSelfUpdate ? 'prohibited' : 'sometimes',
-                'string', 'exists:roles,name', 'not_in:super-admin,owner'
+                'string', 
+                'exists:roles,name', 
+                'not_in:super-admin,owner'
                 ],
             'email' => [
-                'sometimes', 'email',
+                'sometimes', 
+                'email',
                 Rule::unique('users', 'email')->ignore($this->route('user'))
             ],
         ];

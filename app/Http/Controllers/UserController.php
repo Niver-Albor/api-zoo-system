@@ -111,7 +111,9 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        $responseUser = $this->updateUserService->updateUser($user, $request->validated());
+        $dto = SaveUserData::fromRequest($request);
+
+        $responseUser = $this->updateUserService->updateUser($user, $dto);
 
         if ($responseUser)
             {
