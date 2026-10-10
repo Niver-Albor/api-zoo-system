@@ -27,17 +27,14 @@ Route::post('/login', [UserController::class, 'login'])
     ->name('login');
 
 Route::middleware(['auth:sanctum'])->group(function() {
-    Route::post('/users', [UserController::class, 'store'])
-        ->middleware('permission:users.create');
+    Route::post('/users', [UserController::class, 'store']);
 
     Route::get('/users/{user}', [UserController::class, 'show'])
         ->withTrashed();
 
-    Route::get('/users', [UserController::class, 'index'])
-        ->middleware('permission:users.view');
+    Route::get('/users', [UserController::class, 'index']);
 
-    Route::put('/users/{user}', [UserController::class, 'update'])
-        ->middleware('permission:users.update_own');
+    Route::put('/users/{user}', [UserController::class, 'update']);
 
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
 

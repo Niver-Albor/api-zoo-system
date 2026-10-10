@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Business\DTOs\SaveUserData;
 use App\Business\Services\CreateUserService;
 use App\Business\Services\DeleteUserService;
+use App\Business\Services\IndexUserService;
 use App\Business\Services\UpdateUserService;
+use App\Http\Requests\IndexUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -24,7 +26,8 @@ class UserController extends Controller
     public function __construct(
         protected CreateUserService $createUserService,
         protected UpdateUserService $updateUserService,
-        protected DeleteUserService $deleteUserService
+        protected DeleteUserService $deleteUserService,
+        protected IndexUserService $indexUserService
     ) {}
 
     public function login(LoginUserRequest $request)
@@ -140,5 +143,14 @@ class UserController extends Controller
             }
         
         return $this->errorResponse('No se ha eliminado el usuario');
+    }
+
+    public function index(IndexUserRequest $request)
+    {
+        $filters = $request->validated();
+
+        $animals = $this->indexUserService->indexUser($filters);
+
+        return UserResource::collection($animals); // No utilizo el Trait acá porque después en la respuesta la anidación es asquerosa.
     }
 }
