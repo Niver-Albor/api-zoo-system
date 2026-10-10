@@ -3,7 +3,6 @@
 namespace App\Business\Services;
 
 {{useModel}}
-{{useEntity}}
 
 class {{class}}
 {
