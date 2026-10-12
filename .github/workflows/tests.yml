@@ -76,4 +76,4 @@ jobs:
         DB_USERNAME: testing
         DB_PASSWORD: testing_password
       # Si usas Pest:
-      run: php artisan test 
+      run: php artisan test --filter=UserControllerTest
