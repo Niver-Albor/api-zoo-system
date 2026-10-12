@@ -116,11 +116,11 @@ test('Devuelve correctamente la información de TODOS los usuarios', function ()
     User::factory(25)->create(['role_id' => $role1->id]);
     User::factory(25)->create(['role_id' => $role2->id]);
 
-    $payload = '?per_page=2&page=3&role=cuidador';
-
-    $user = User::where('id', 6)->firstOrFail();
+    $payload = "?per_page=2&page=3&role={$role1->name}";
 
     $response = $this->getJson("/api/users/{$payload}");
+
+    $user = User::where('role_id', $role1->id)->skip(4)->firstOrFail();
 
     $response->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(2, 'data')
