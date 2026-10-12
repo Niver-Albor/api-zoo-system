@@ -13,7 +13,7 @@ class SaveUserData extends BaseDTO
         public readonly ?string $role_name = null,
     ) {}
 
-    public static function fromRequest(FormRequest $request): self
+    public static function fromRequest(FormRequest $request): static
     {
         
         return new self(

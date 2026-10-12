@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Resources\UserResource;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class UserController extends Controller
 {
@@ -34,19 +36,20 @@ class UserController extends Controller
     {
         $credentials = $request->validated();
 
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('email', $credentials['email'])->firstOrFail();
 
-        if (!Auth::attempt($credentials))
+        if (!Hash::check($credentials['password'], $user->password))
             {
                 return $this->errorResponse('Credenciales invalidas', Response::HTTP_UNAUTHORIZED);
             }
         
-        $user = Auth::user();
+        Auth::guard('web')->login($user);
 
         // Regenera la Cookie de sesión.
         if ($request->hasSession()) {
             $request->session()->regenerate();
         }
+
         // Crea el token de Sanctum y lo guarda
         $deviceName = $request->input('device_name', $request->userAgent() ?? 'unknown_device');
         $token = $user->createToken($deviceName)->plainTextToken;
@@ -64,10 +67,13 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        // Revisa si la petición tiene un token de autenticación y lo elimina.
-        if ($request->user()->currentAccessToken() instanceof \Laravel\Sanctum\PersonalAccessToken) {
-            $request->user()->currentAccessToken()->delete();
-        }
+        $user = auth('sanctum')->user();
+
+        if ($user && $user->currentAccessToken() instanceof PersonalAccessToken)
+            {
+                $user->currentAccessToken()->delete();
+            }
+        
         // Si la petición es de un cliente web (cookies), elimina la sesión.
         if ($request->hasSession()) {
             Auth::guard('web')->logout();

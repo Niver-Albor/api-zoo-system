@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Http\Middleware\CheckPermission;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -50,6 +51,16 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message' => 'El recurso solicitado no existe.',
                         'data' => null
                     ], Response::HTTP_BAD_REQUEST);
+                }
+        });
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            if ($request->is('api/*'))
+                {
+                    return response()->json([
+                        'success'   => false,
+                        'message'   => 'No autorizado',
+                        'data'      => null
+                    ], Response::HTTP_UNAUTHORIZED);
                 }
         });
     })
