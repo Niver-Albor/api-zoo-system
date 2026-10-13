@@ -21,9 +21,10 @@ class MedicalRecordFactory extends Factory
     public function definition(): array
     {
         return [
-            'animal_id' => Animal::inRandomOrder()->first()->id,
-            'user_id' => User::inRandomOrder()->first()->id,
-            'replaces_id' => null,
+            'animal_id' => Animal::inRandomOrder()->first()->id ?? Animal::factory(),
+            'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
+            'replaces_id' => $this->faker->optional(0.2)->randomElement(MedicalRecord::inRandomOrder()->first()->id ?? MedicalRecord::factory()),
+            'uuid' => $this->faker->unique()->uuid(),
             'record_type' => $this->faker->randomElement(['checkup', 'vaccination', 'deworming', 'emergency', 'correction']),
             'diagnosis' => $this->faker->text(255),
             'treatment' => $this->faker->text(255),
