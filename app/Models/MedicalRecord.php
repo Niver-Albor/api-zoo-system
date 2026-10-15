@@ -13,7 +13,8 @@ class MedicalRecord extends Model
     protected $fillable = [
         'animal_id', 
         'user_id', 
-        'replaces_id', 
+        'replaces_id',
+        'uuid',
         'record_type', 
         'diagnosis', 
         'treatment', 
@@ -22,12 +23,12 @@ class MedicalRecord extends Model
         ];
     protected $hidden = ['created_at', 'updated_at'];
 
-    public function animals()
+    public function animal()
     {
         return $this->belongsTo(Animal::class, 'animal_id');
     }
 
-    public function users()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
