@@ -33,12 +33,12 @@ class MedicalRecord extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function replacedRecord()
+    public function replacesRecord()
     {
         return $this->belongsTo(MedicalRecord::class, 'replaces_id');
     }
 
-    public function correctionRecord()
+    public function replacedBy()
     {
         return $this->hasOne(MedicalRecord::class, 'replaces_id');
     }
