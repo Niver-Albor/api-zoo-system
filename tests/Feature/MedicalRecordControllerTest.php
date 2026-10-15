@@ -3,6 +3,8 @@
 use App\Models\Animal;
 use App\Models\MedicalRecord;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,12 +30,11 @@ test('Crea un registro médico correctamente', function () {
 
     $payload = [
         'animal_code'       => $animal->code,
-        'user_uuid'         => $this->user->uuid,
         'record_type'       => 'emergency',
         'diagnosis'         => 'Texto de diagnostico de ejemplo.',
         'treatment'         => 'Texto de tratamiento de ejmeplo.',
-        'performed_at'      => $now->toDateTimeString(),
-        'next_checkup_at'   => $now->addWeeks(2)->toDateTimeString(),
+        'performed_at'      => $now->toIso8601String(),
+        'next_checkup_at'   => $now->copy()->addWeeks(2)->toIso8601String(),
     ];
 
     $response = $this->postJson('/api/med_records', $payload);
@@ -42,27 +43,37 @@ test('Crea un registro médico correctamente', function () {
         ->assertJsonPath('data.animal.name', $animal->name)
         ->assertJsonPath('data.animal.code', $animal->code)
         ->assertJsonPath('data.user.name', $this->user->name)
-        ->assertJsonPath('data.record.performed_at', $now->toDateTimeString())
+        ->assertJsonPath('data.record.performed_at', $now->toIso8601String())
         ->assertJsonStructure([
             'success',
             'data' => [
                 'record' => [
-                    'uuid',
+                    'id',
                     'record_type',
                     'diagnosis',
                     'treatment',
-                    'performed_at' => $now->toDateTimeString(),
+                    'performed_at',
                     'next_checkup_at',
                 ],
                 'animal' => [
-                    'code' => $animal->code,
                     'name',
+                    'code',
                 ],
                 'user' => [
-                    'uuid' => $this->user->uuid,
-                    'name' => $this->user->name
+                    'name',
+                    'id',
                 ]
             ]
+        ]);
+        
+        expect($response->json('data.animal'))->toMatchArray([
+            'name' => $animal->name,
+            'code' => $animal->code,
+        ]);
+
+        expect($response->json('data.user'))->toMatchArray([
+            'name'  => $this->user->name,
+            'id'    => $this->user->uuid,
         ]);
 });
 
