@@ -14,4 +14,18 @@ class MedicalRecordPolicy
     {
         return $user->hasPermission('medical.create');
     }
+
+    /**
+     * Determine wether the user can update de model.
+     */
+    public function update(User $user, MedicalRecord $record): bool
+    {
+        if ($user->hasPermission('medical.update_any'))
+            return true;
+        
+        if ($user->hasPermission('medical.update_own') && $record->user_id === $user->id)
+            return true;
+        
+        return false;
+    }
 }
