@@ -6,8 +6,10 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Http\Middleware\CheckPermission;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -61,6 +63,16 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'   => 'No autorizado',
                         'data'      => null
                     ], Response::HTTP_UNAUTHORIZED);
+                }
+        });
+        $exceptions->render(function (AuthorizationException | AccessDeniedHttpException $e, $request) {
+            if ($request->is('api/*'))
+                {
+                    return response()->json([
+                        'success'   => false,
+                        'message'   => 'No autorizado',
+                        'data'      => null
+                    ], Response::HTTP_FORBIDDEN);
                 }
         });
     })

@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -85,10 +86,9 @@ test('Falla al tratar de crear con datos invalidos', function () {
 
     $payload = [
         'animal_code'       => '   asdf1233   ',
-        'user_uuid'         => uuid_create(),
         'diagnosis'         => 'Texto de diagnostico de ejemplo.',
         'treatment'         => 'Texto de tratamiento de ejmeplo.',
-        'performed_at'      => $now->addWeeks(2)->toDateTimeString(),
+        'performed_at'      => $now->copy()->addWeeks(2)->toDateTimeString(),
         'next_checkup_at'   => $now->toDateTimeString(),
     ];
 
@@ -99,9 +99,9 @@ test('Falla al tratar de crear con datos invalidos', function () {
         ->assertJsonStructure([
             'success',
             'data' => [
-                'errors' => [
+                'message' => [
                     'animal_code',
-                    'user_uuid',
+                    'record_type',
                     'performed_at',
                     'next_checkup_at'
                 ]
@@ -111,15 +111,19 @@ test('Falla al tratar de crear con datos invalidos', function () {
 
 test('Falla al tratar de crear sin permisos', function () {
     $animal = Animal::factory()->create();
+    $now = Carbon::now();
 
     $payload = [
         'animal_code'       => $animal->code,
-        'user_uuid'         => $this->user->uuid,
+        'record_type'       => 'emergency',
         'diagnosis'         => 'Texto de diagnostico de ejemplo.',
         'treatment'         => 'Texto de tratamiento de ejmeplo.',
+        'performed_at'      => $now->toIso8601String(),
+        'next_checkup_at'   => $now->copy()->addWeeks(2)->toIso8601String(),
     ];
 
     $response = $this->postJson('/api/med_records', $payload);
+
 
     $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
@@ -131,12 +135,14 @@ test('Falla al tratar de crear sin autenticacion', function () {
     $this->role->permissions()->sync($permission->id);
 
     $animal = Animal::factory()->create();
+    $now = Carbon::now();
 
     $payload = [
         'animal_code'       => $animal->code,
-        'user_uuid'         => $this->user->uuid,
         'diagnosis'         => 'Texto de diagnostico de ejemplo.',
         'treatment'         => 'Texto de tratamiento de ejmeplo.',
+        'performed_at'      => $now->toIso8601String(),
+        'next_checkup_at'   => $now->copy()->addWeeks(2)->toIso8601String(),
     ];
 
     $response = $this->postJson('/api/med_records', $payload);
