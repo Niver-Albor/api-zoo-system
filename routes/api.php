@@ -45,4 +45,6 @@ Route::middleware(['auth:sanctum'])->group(function() {
 // Módulo de Historial Médico.
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/med_records', [MedicalRecordController::class, 'store']);
+
+    Route::put('/med_records/{medical_record}', [MedicalRecordController::class, 'createAmendment']);
 });
