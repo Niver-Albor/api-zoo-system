@@ -22,7 +22,7 @@ class MedicalRecordResource extends JsonResource
                 'treatment'         => $this->treatment,
                 'performed_at'      => $this->performed_at->toIso8601String(),
                 'next_checkup_at'   => $this->next_checkup_at?->toIso8601String(),
-                'replaces_id'       => $this->whenLoaded('replacesRecord', function () {
+                'replaces_record'       => $this->whenLoaded('replacesRecord', function () {
                     return $this->replacesRecord?->uuid;
                 })
             ],

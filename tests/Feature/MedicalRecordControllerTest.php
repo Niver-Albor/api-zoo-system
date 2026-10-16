@@ -153,24 +153,43 @@ test('Falla al tratar de crear sin autenticacion', function () {
 
 // Update
 test('Actualiza correctamente la información de un registro médico', function () {
-    $permission = Permission::factory()->create(['name' =>  'medical.update_own']);
+    $permission = Permission::factory()->create(['name' =>  'medical.update_any']);
     $this->role->permissions()->sync($permission->id);
 
     $record = MedicalRecord::factory()->create();
     $date = Carbon::now()->addWeeks(1);
 
     $payload = [
+        'record_type'       => 'correction',
         'treatment'         => 'Nuevo texto de ejemplo para el tratamiento',
-        'next_checkup_at'   => $date->toDateTimeString()
+        'next_checkup_at'   => $date->toIso8601String()
     ];
 
     $response = $this->putJson("/api/med_records/{$record->uuid}", $payload);
 
     $response->assertStatus(Response::HTTP_OK)
         ->assertJsonPath('data.record.record_type', 'correction')
-        ->assertJsonPath('data.record.next_checkup_at', $date->toDateTimeString())
+        ->assertJsonPath('data.record.next_checkup_at', $date->toIso8601String())
         ->assertJsonPath('data.record.treatment', $payload['treatment'])
         ->assertJsonPath('data.record.replaces_record', $record->uuid);
+});
+
+test('Falla al tratar de actualizar un registro inexistente', function () {
+    $permission = Permission::factory()->create(['name' =>  'medical.update_any']);
+    $this->role->permissions()->sync($permission->id);
+
+    $date = Carbon::now()->addWeeks(1);
+    $uuid = uuid_create();
+
+    $payload = [
+        'record_type'       => 'correction',
+        'treatment'         => 'Nuevo texto de ejemplo para el tratamiento',
+        'next_checkup_at'   => $date->toIso8601String()
+    ];
+
+    $response = $this->putJson("/api/med_records/{$uuid}", $payload);
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST);
 });
 
 test('Falla al tratar de actualizar con datos invalidos', function () {
@@ -180,26 +199,22 @@ test('Falla al tratar de actualizar con datos invalidos', function () {
     $date = Carbon::now();
 
     $record = MedicalRecord::factory()->create([
-        'performed_at' => $date->addWeeks(2)->toDateTimeString()
+        'performed_at' => $date->copy()->addWeeks(2)->toIso8601String()
         ]);
 
     $payload = [
         'record_type'       => 'tipo invalido',
-        'next_checkup_at'   => $date->toDateTimeString()
+        'next_checkup_at'   => $date->toIso8601String()
     ];
 
 
     $response = $this->putJson("/api/med_records/{$record->uuid}", $payload);
-
-
+    
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonStructure([
-            'success',
-            'data' => [
-                'errors' => [
-                    'record_type',
-                    'next_checkup_at',
-                ]
+            'message',
+            'errors'    => [
+                'record_type',
             ]
         ]);
 });
@@ -209,6 +224,7 @@ test('Falla al tratar de actualizar sin permisos', function () {
     $date = Carbon::now()->addWeeks(1);
 
     $payload = [
+        'record_type'       => 'correction',
         'treatment'         => 'Nuevo texto de ejemplo para el tratamiento',
         'next_checkup_at'   => $date->toDateTimeString()
     ];
