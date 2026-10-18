@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,8 +21,9 @@ class MedicalRecordResource extends JsonResource
                 'record_type'       => $this->record_type,
                 'diagnosis'         => $this->diagnosis,
                 'treatment'         => $this->treatment,
-                'performed_at'      => $this->performed_at->toIso8601String(),
-                'next_checkup_at'   => $this->next_checkup_at?->toIso8601String(),
+                'performed_at'      => Carbon::parse($this->performed_at)->toIso8601String(),
+                'next_checkup_at'   => $this->next_checkup_at ? 
+                    Carbon::parse($this->next_checkup_at)->toIso8601String() : null,
                 'replaces_record'       => $this->whenLoaded('replacesRecord', function () {
                     return $this->replacesRecord?->uuid;
                 })
