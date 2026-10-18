@@ -246,7 +246,7 @@ test('Devuelve correctamente la lista de registro médicos', function () {
 
     MedicalRecord::factory(10)->create(['animal_id' => $animal->id]);
 
-    $filters = "?search={$animal->uuid}&page=2&per_page=5";
+    $filters = "?animal_code={$animal->code}&page=2&per_page=5";
 
     $response = $this->getJson("/api/med_records{$filters}");
 
