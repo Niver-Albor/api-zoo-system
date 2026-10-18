@@ -28,4 +28,9 @@ class MedicalRecordPolicy
         
         return false;
     }
+
+    public function view(User $user): bool
+    {
+        return $user->hasPermission('medical.view');
+    }
 }

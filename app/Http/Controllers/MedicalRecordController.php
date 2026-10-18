@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Business\DTOs\SaveMedicalRecordData;
 use App\Business\Services\AmendMedicalRecordService;
 use App\Business\Services\CreateMedicalRecordService;
+use App\Business\Services\IndexMedicalRecordService;
 use App\Http\Requests\AmendMedicalRecordRequest;
+use App\Http\Requests\IndexMedicalRecordRequest;
 use App\Http\Requests\StoreMedicalRecordRequest;
 use App\Http\Requests\UpdateMedicalRecordRequest;
 use App\Http\Resources\MedicalRecordResource;
@@ -21,6 +23,7 @@ class MedicalRecordController extends Controller
     function __construct(
         protected CreateMedicalRecordService $createMedicalRecordService,
         protected AmendMedicalRecordService $amendMedicalRecordService,
+        protected IndexMedicalRecordService $indexMedicalRecordService
     ) {}
 
     public function store(StoreMedicalRecordRequest $request)
@@ -61,5 +64,16 @@ class MedicalRecordController extends Controller
             }
         
         return $this->errorResponse();
+    }
+
+    public function index(IndexMedicalRecordRequest $request)
+    {
+        $this->authorize('view', MedicalRecord::class);
+
+        $filters = $request->validated();
+
+        $records = $this->indexMedicalRecordService->indexRecords($filters);
+
+        return MedicalRecordResource::collection($records);
     }
 }
