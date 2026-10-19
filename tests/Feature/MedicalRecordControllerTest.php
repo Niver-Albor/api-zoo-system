@@ -89,8 +89,8 @@ test('Falla al tratar de crear con datos invalidos', function () {
         'animal_code'       => '   asdf1233   ',
         'diagnosis'         => 'Texto de diagnostico de ejemplo.',
         'treatment'         => 'Texto de tratamiento de ejmeplo.',
-        'performed_at'      => $now->copy()->addWeeks(2)->toDateTimeString(),
-        'next_checkup_at'   => $now->toDateTimeString(),
+        'performed_at'      => $now->copy()->addWeeks(2)->toIso8601String(),
+        'next_checkup_at'   => $now->toIso8601String(),
     ];
 
     $response = $this->postJson('/api/med_records', $payload);
