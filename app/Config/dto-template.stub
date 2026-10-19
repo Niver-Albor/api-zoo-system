@@ -10,7 +10,7 @@ class {{className}} extends BaseDTO
         //
     ) {}
 
-    public static function fromRequest(FormRequest $request): self
+    public static function fromRequest(FormRequest $request): static
     {
         return new self(
             //

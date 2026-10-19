@@ -24,6 +24,8 @@ class PermissionAndRoleTableSeeder extends Seeder
             // Módulo Médico
             ['name' => 'medical.view', 'description' => 'Ver historial médico'],
             ['name' => 'medical.create', 'description' => 'Crear consultas o fichas médicas'],
+            ['name' => 'medical.update_own', 'description' => 'Actualiza sus fichas médicas'],
+            ['name' => 'medical.update_any', 'description' => 'Actualiza cualquier ficha médica'],
 
             // Módulo de Hábitats
             ['name' => 'habitats.manage', 'description' => 'Administrar hábitats y capacidades'],
@@ -46,6 +48,7 @@ class PermissionAndRoleTableSeeder extends Seeder
 
         $adminRole = Role::firstOrCreate(['name' => 'owner'], ['description' => 'Administrador general']);
         $vetRole = Role::firstOrCreate(['name' => 'veterinarian'], ['description' => 'Personal médico']);
+        $assistantRole = Role::firstOrCreate(['name' => 'assistant'], ['description' => 'Auxiliar técnico']);
 
         $allPermissionIds = Permission::pluck('id');
         $adminRole->permissions()->sync($allPermissionIds);
@@ -53,8 +56,16 @@ class PermissionAndRoleTableSeeder extends Seeder
         $vetPermissionIds = Permission::whereIn('name', [
             'animals.view',
             'medical.view',
-            'medical.create'
+            'medical.create',
+            'medical.update_own'
         ])->pluck('id');
         $vetRole->permissions()->sync($vetPermissionIds);
+
+        $assistantPermissionIds = Permission::whereIn('name', [
+            'medical.view',
+            'users.update_own',
+            'animals.view',
+        ])->pluck('id');
+        $assistantRole->permissions()->sync($assistantPermissionIds);
     }
 }

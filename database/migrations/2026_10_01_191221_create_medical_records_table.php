@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('animal_id')->constrained('animals')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
             $table->foreignId('replaces_id')->nullable()->constrained('medical_records')->onDelete('restrict');
+            $table->uuid('uuid')->unique();
             $table->enum('record_type', ['checkup', 'vaccination', 'deworming', 'emergency', 'correction']);
             $table->text('diagnosis')->nullable();
             $table->text('treatment')->nullable();
