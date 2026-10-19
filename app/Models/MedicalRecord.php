@@ -23,6 +23,11 @@ class MedicalRecord extends Model
         ];
     protected $hidden = ['created_at', 'updated_at'];
 
+    protected $casts = [
+        'performed_at' => 'datetime',
+        'next_checkup_at' => 'datetime',
+    ];
+
     public function animal()
     {
         return $this->belongsTo(Animal::class, 'animal_id');
