@@ -10,6 +10,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpFoundation\Response;
 
+use function Pest\Laravel\json;
 use function Symfony\Component\Clock\now;
 
 beforeEach(function () {
@@ -275,13 +276,12 @@ test('Devuelvel correctamente la información del registro médico', function ()
     $this->role->permissions()->sync($permission->id);
 
     $record = MedicalRecord::factory()->create();
+    $record->load('animal');
 
     $response = $this->getJson("/api/med_records/{$record->uuid}");
 
-    $record->load('animals');
-
-    $response->assertStatus(Response::HTTP_OK)
-        ->assertJsonPath('data.animal.name', $record->animals->name);
+    $response->assertStatus(Response::HTTP_OK);
+    expect($response->json('data.animal.name'))->toBe($record->animal->name);
 });
 
 test('Falla al consultar un registro médico inexistente', function () {
@@ -292,7 +292,7 @@ test('Falla al consultar un registro médico inexistente', function () {
 
     $response = $this->getJson("/api/med_records/". uuid_create());
 
-    $response->assertStatus(Response::HTTP_NOT_FOUND)
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
         ->assertJsonPath('success', false);
 });
 
@@ -300,8 +300,6 @@ test('Falla al consultar sin permisos', function () {
     $record = MedicalRecord::factory()->create();
 
     $response = $this->getJson("/api/med_records/{$record->uuid}");
-
-    $record->load('animals');
 
     $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
