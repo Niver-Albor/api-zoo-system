@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\DTOs\IndexMedicalRecordData;
 use App\Business\DTOs\SaveMedicalRecordData;
 use App\Business\Services\AmendMedicalRecordService;
 use App\Business\Services\CreateMedicalRecordService;
@@ -70,9 +71,9 @@ class MedicalRecordController extends Controller
     {
         $this->authorize('view', MedicalRecord::class);
 
-        $filters = $request->validated();
+        $dto = IndexMedicalRecordData::fromRequest($request);
 
-        $records = $this->indexMedicalRecordService->indexRecords($filters);
+        $records = $this->indexMedicalRecordService->indexRecords($dto);
 
         return MedicalRecordResource::collection($records);
     }
