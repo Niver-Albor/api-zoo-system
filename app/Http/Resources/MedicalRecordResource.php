@@ -26,7 +26,10 @@ class MedicalRecordResource extends JsonResource
                     Carbon::parse($this->next_checkup_at)->toIso8601String() : null,
                 'replaces_record'       => $this->whenLoaded('replacesRecord', function () {
                     return $this->replacesRecord?->uuid;
-                })
+                }),
+                'replaced_by' => $this->whenLoaded('replacedBy', function () {
+                    return $this->replacedBy?->uuid;
+                }),
             ],
             'animal'    => $this->whenLoaded('animal', function() {
                 return [
