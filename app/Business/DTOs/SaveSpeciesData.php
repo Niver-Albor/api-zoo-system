@@ -7,10 +7,10 @@ use Illuminate\Foundation\Http\FormRequest;
 class SaveSpeciesData extends BaseDTO
 {
     public function __construct(
-        protected ?string $id,
-        protected ?string $commonName,
-        protected ?string $scientificName,
-        protected ?string $description
+        public readonly ?string $id,
+        public readonly ?string $commonName,
+        public readonly ?string $scientificName,
+        public readonly ?string $description
     ) {}
 
     public static function fromRequest(FormRequest $request): static
