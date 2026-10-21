@@ -58,4 +58,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 // Módulo de Especies.
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/species', [SpeciesController::class, 'store']);
+
+    Route::put('/species/{species}', [SpeciesController::class, 'update']);
 });
