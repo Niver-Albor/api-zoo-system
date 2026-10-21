@@ -175,12 +175,12 @@ test('Falla al tratar de actualizar el registro de una especie sin permisos', fu
 
 // Index
 test('Devuelve correctamente el catalogo de especies', function () {
-    $permission = Permission::factory()->create(['name' => 'especies.view']);
+    $permission = Permission::factory()->create(['name' => 'species.view']);
     $this->role->permissions()->sync($permission->id);
 
     Species::factory(30)->create();
 
-    $species = Species::where('id', 6)->findOrFail();
+    $species = Species::where('id', 6)->firstOrFail();
 
     $filters = 'per_page=5&page=2';
 
@@ -188,11 +188,11 @@ test('Devuelve correctamente el catalogo de especies', function () {
 
     $response->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(5, 'data')
-        ->assertJsonPath('data.0.name', $species->name);
+        ->assertJsonPath('data.0.common_name', $species->common_name);
 });
 
 test('No devuelve nada cuando el filtro descarta todos los registros', function () {
-    $permission = Permission::factory()->create(['name' => 'especies.view']);
+    $permission = Permission::factory()->create(['name' => 'species.view']);
     $this->role->permissions()->sync($permission->id);
 
     Species::factory(30)->create();
