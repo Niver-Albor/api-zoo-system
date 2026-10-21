@@ -37,8 +37,11 @@ class PermissionAndRoleTableSeeder extends Seeder
             ['name' => 'users.update_own', 'description' => 'Editar los registros de solo su usuario'],
             ['name' => 'users.delete_any', 'description' => 'Eliminar o dar de baja a cualquier usuario'],
 
-            //Módulo de Roles
-            ['name' => 'roles.assign', 'description' => 'Asignar roles']
+            // Módulo de Roles
+            ['name' => 'roles.assign', 'description' => 'Asignar roles'],
+
+            // Módulo de Especies
+            ['name' => 'species.create', 'description'  => 'Registrar nuevas especies'],
         ];
 
         foreach ($permissions as $permission)
