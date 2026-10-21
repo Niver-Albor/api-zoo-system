@@ -2,7 +2,9 @@
 
 use App\Models\Animal;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\Species;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,18 +23,21 @@ test('Registra una especie correctamente', function () {
     $this->role->permissions()->sync($permission->id);
 
     $payload = [
-        'name'          => 'Perro',
-        'description'   => 'Un perro normal para la descripcion'
+        'common_name'       => 'Perro',
+        'scientific_name'   => 'Perrus Callejerus',
+        'description'       => 'Un perro normal para la descripcion'
     ];
 
     $response = $this->postJson('/api/species', $payload);
+    
 
     $response->assertStatus(Response::HTTP_CREATED)
-        ->assertJsonPath('data.name', $payload['name'])
+        ->assertJsonPath('data.common_name', strtoupper(trim($payload['common_name'])))
         ->assertJsonStructure([
             'success',
             'data'  => [
-                'name',
+                'common_name',
+                'scientific_name',
                 'description'
             ],
             'message'
@@ -43,21 +48,21 @@ test('Falla al tratar de registrar una especie con datos invalidos', function ()
     $permission = Permission::factory()->create(['name' =>  'species.create']);
     $this->role->permissions()->sync($permission->id);
 
-    $name = 'Perro';
-
-    Species::factory()->create(['name'  => $name]);
+    $species = Species::factory()->create();
 
     $payload = [
-        'name'  => $name
+        'common_name'  => strtolower(" {$species->name} ")
     ];
 
     $response = $this->postJson('/api/species', $payload);
+
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonStructure([
             'success',
             'message'   => [
-                'name',
+                'common_name',
+                'scientific_name',
                 'description'
             ]
         ]);
@@ -65,13 +70,14 @@ test('Falla al tratar de registrar una especie con datos invalidos', function ()
 
 test('Falla al tratar de registrar una especie sin permisos', function () {
     $payload = [
-        'name'          => 'Perro',
-        'description'   => 'Un perro normal para la descripcion'
+        'common_name'       => 'Perro',
+        'scientific_name'   => 'Perro cientifico',
+        'description'       => 'Un perro normal para la descripcion'
     ];
 
     $response = $this->postJson('/api/species', $payload);
 
-    $response->assertStatus(Response::HTTP_UNAUTHORIZED)
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
 });
 
@@ -81,13 +87,14 @@ test('Falla al tratar de registrar una especie sin autenticación', function () 
     $this->role->permissions()->sync($permission->id);
 
     $payload = [
-        'name'          => 'Perro',
-        'description'   => 'Un perro normal para la descripcion'
+        'common_name'       => 'Perro',
+        'scientific_name'   => 'Perro cientifico',
+        'description'       => 'Un perro normal para la descripcion'
     ];
 
     $response = $this->postJson('/api/species', $payload);
 
-    $response->assertStatus(Response::HTTP_FORBIDDEN)
+    $response->assertStatus(Response::HTTP_UNAUTHORIZED)
         ->assertJsonPath('success', false);
 });
 
