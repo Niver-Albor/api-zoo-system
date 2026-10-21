@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\DTOs\IndexSpeciesData;
 use App\Business\DTOs\SaveSpeciesData;
 use App\Business\Services\CreateSpeciesService;
+use App\Business\Services\IndexSpeciesService;
 use App\Business\Services\UpdateSpeciesService;
+use App\Http\Requests\IndexSpeciesRequest;
 use App\Http\Requests\StoreSpecieRequest;
 use App\Http\Requests\UpdateSpeciesRequest;
 use App\Http\Resources\SpeciesResource;
@@ -20,6 +23,7 @@ class SpeciesController extends Controller
     public function __construct(
         protected CreateSpeciesService $createSpeciesService,
         protected UpdateSpeciesService $updateSpeciesService,
+        protected IndexSpeciesService $indexSpeciesService,
     ) {}
 
     public function store(StoreSpecieRequest $request)
@@ -59,5 +63,16 @@ class SpeciesController extends Controller
             }
         
         return $this->errorResponse();
+    }
+
+    public function index(IndexSpeciesRequest $request)
+    {
+        $this->authorize('view', Species::class);
+
+        $filters = IndexSpeciesData::fromRequest($request);
+
+        $response = $this->indexSpeciesService->indexSpecies($filters);
+
+        return SpeciesResource::collection($response);
     }
 }

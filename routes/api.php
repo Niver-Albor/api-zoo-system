@@ -60,4 +60,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/species', [SpeciesController::class, 'store']);
 
     Route::put('/species/{species}', [SpeciesController::class, 'update']);
+
+    Route::get('/species', [SpeciesController::class, 'index']);
 });
