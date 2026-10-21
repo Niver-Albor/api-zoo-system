@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\SpeciesController;
 use App\Http\Controllers\UserController;
 use App\Models\MedicalRecord;
 use Illuminate\Support\Facades\Route;
@@ -52,4 +53,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/med_records', [MedicalRecordController::class, 'index']);
 
     Route::get('/med_records/{medical_record}', [MedicalRecordController::class, 'show']);
+});
+
+// Módulo de Especies.
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/species', [SpeciesController::class, 'store']);
 });
