@@ -19,8 +19,8 @@ class SpeciesFactory extends Factory
     public function definition(): array
     {
         return [
-            'common_name' => $this->faker->words(2, true),
-            'scientific_name' => $this->faker->words(3, true),
+            'common_name' => strtoupper(trim($this->faker->words(2, true))),
+            'scientific_name' => strtoupper(trim($this->faker->words(3, true))),
             'description' => $this->faker->sentence()
         ];
     }
