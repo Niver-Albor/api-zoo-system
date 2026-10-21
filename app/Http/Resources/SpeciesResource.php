@@ -19,6 +19,8 @@ class SpeciesResource extends JsonResource
             'common_name'       => $this->common_name,
             'scientific_name'   => $this->scientific_name,
             'description'       => $this->description,
+            'animal_count'      => $this->whenLoaded('animals_count', fn () => $this->animals_count),
+            'created_at'        => $this->created_at?->toIso8601String(),
         ];
     }
 }
