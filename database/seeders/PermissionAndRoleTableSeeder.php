@@ -43,6 +43,7 @@ class PermissionAndRoleTableSeeder extends Seeder
             // Módulo de Especies
             ['name' => 'species.create', 'description'  => 'Registrar nuevas especies'],
             ['name' => 'species.update', 'description'  => 'Editar datos de cualquier especie'],
+            ['name' => 'species.view', 'description'   => 'Ver listado general de las especies']
         ];
 
         foreach ($permissions as $permission)

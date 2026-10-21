@@ -15,13 +15,18 @@ class SpeciesPolicy
         //
     }
 
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->hasPermission('species.create');
     }
 
-    public function update(User $user, Species $species)
+    public function update(User $user, Species $species): bool
     {
         return $user->hasPermission('species.update');
+    }
+
+    public function view(User $user): bool
+    {
+        return $user->hasPermission('species.view');
     }
 }
