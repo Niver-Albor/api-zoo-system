@@ -106,14 +106,16 @@ test('Actualiza el registro de una especie correctamente', function () {
     $species = Species::factory()->create();
 
     $payload = [
-        'name'          => 'Gato',
-        'description'   => 'Descripcion actualizada'
+        'common_name'       => ' Gato  ',
+        'scientific_name'   => 'Gato malvado',
+        'description'       => 'Descripcion actualizada'
     ];
 
     $response = $this->putJson("/api/species/{$species->id}", $payload);
 
+
     $response->assertStatus(Response::HTTP_OK)
-        ->assertJsonPath('data.name', $payload['name']);
+        ->assertJsonPath('data.common_name', strtoupper(trim($payload['common_name'])));
 });
 
 test('Falla al tratar de actualizar el registro de una especie inexistente', function () {
@@ -121,13 +123,13 @@ test('Falla al tratar de actualizar el registro de una especie inexistente', fun
     $this->role->permissions()->sync($permission->id);
 
     $payload = [
-        'name'          => 'Gato',
+        'common_name'          => 'Gato',
         'description'   => 'Descripcion actualizada'
     ];
 
     $response = $this->putJson("/api/species/5", $payload);
 
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
         ->assertJsonPath('success', false);
 });
 
@@ -136,20 +138,22 @@ test('Falla al tratar de actualizar el registro de una especie con datos invalid
     $this->role->permissions()->sync($permission->id);
 
     $species1 = Species::factory()->create();
-    $especies2 = Species::factory()->create(['name' => 'Gato']);
+    $species2 = Species::factory()->create();
+
 
     $payload = [
-        'name'          => 'Gato',
+        'common_name'          => $species2->common_name,
         'description'   => 123213123
     ];
 
     $response = $this->putJson("/api/species/{$species1->id}", $payload);
 
+
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonStructure([
-            'successs',
+            'success',
             'message'   => [
-                'name',
+                'common_name',
                 'description'
             ]
         ]);
@@ -159,13 +163,13 @@ test('Falla al tratar de actualizar el registro de una especie sin permisos', fu
     $species = Species::factory()->create();
 
     $payload = [
-        'name'          => 'Gato',
+        'common_name'          => 'Gato',
         'description'   => 'Descripcion actualizada'
     ];
 
     $response = $this->putJson("/api/species/{$species->id}", $payload);
 
-    $response->assertStatus(Response::HTTP_UNAUTHORIZED)
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
 });
 
