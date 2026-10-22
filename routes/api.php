@@ -62,4 +62,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/species/{species}', [SpeciesController::class, 'update']);
 
     Route::get('/species', [SpeciesController::class, 'index']);
+
+    Route::get('/species/{species}', [SpeciesController::class, 'show']);
 });

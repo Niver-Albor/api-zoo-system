@@ -6,6 +6,7 @@ use App\Business\DTOs\IndexSpeciesData;
 use App\Business\DTOs\SaveSpeciesData;
 use App\Business\Services\CreateSpeciesService;
 use App\Business\Services\IndexSpeciesService;
+use App\Business\Services\ShowSpeciesService;
 use App\Business\Services\UpdateSpeciesService;
 use App\Http\Requests\IndexSpeciesRequest;
 use App\Http\Requests\StoreSpecieRequest;
@@ -13,6 +14,7 @@ use App\Http\Requests\UpdateSpeciesRequest;
 use App\Http\Resources\SpeciesResource;
 use App\Models\Species;
 use App\Traits\ApiResponse;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -24,6 +26,7 @@ class SpeciesController extends Controller
         protected CreateSpeciesService $createSpeciesService,
         protected UpdateSpeciesService $updateSpeciesService,
         protected IndexSpeciesService $indexSpeciesService,
+        protected ShowSpeciesService $showSpeciesService,
     ) {}
 
     public function store(StoreSpecieRequest $request)
@@ -74,5 +77,21 @@ class SpeciesController extends Controller
         $response = $this->indexSpeciesService->indexSpecies($filters);
 
         return SpeciesResource::collection($response);
+    }
+
+    public function show(FormRequest $request, Species $species)
+    {
+        $this->authorize('view', Species::class);
+
+        $response = $this->showSpeciesService->showSpecies($species);
+
+        if ($response)
+            {
+                return $this->successResponse(
+                    new SpeciesResource($response),
+                );
+            }
+        
+        return $this->errorResponse();
     }
 }
