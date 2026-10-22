@@ -29,4 +29,9 @@ class SpeciesPolicy
     {
         return $user->hasPermission('species.view');
     }
+
+    public function delete(User $user): bool
+    {
+        return $user->hasPermission('species.delete');
+    }
 }
