@@ -180,7 +180,7 @@ test('Devuelve correctamente el catalogo de especies', function () {
 
     Species::factory(30)->create();
 
-    $species = Species::where('id', 6)->firstOrFail();
+    $species = Species::skip(5)->firstOrFail();
 
     $filters = 'per_page=5&page=2';
 
