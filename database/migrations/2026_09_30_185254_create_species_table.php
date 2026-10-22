@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('scientific_name', 150)->unique()->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
