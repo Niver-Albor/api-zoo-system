@@ -21,6 +21,15 @@ class SpeciesResource extends JsonResource
             'description'       => $this->description,
             'animal_count'      => $this->whenLoaded('animals_count', fn () => $this->animals_count),
             'created_at'        => $this->created_at?->toIso8601String(),
+            'animals'           => $this->whenLoaded('animals', function () {
+                return $this->animals->map(function ($animal) {
+                    // Se podría abstraer a un recurso independiente.
+                    return [
+                        'name'  => $animal->name,
+                        'code'  => $animal->code,
+                    ];
+                });
+            }),
         ];
     }
 }
