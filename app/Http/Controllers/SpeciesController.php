@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Business\DTOs\IndexSpeciesData;
 use App\Business\DTOs\SaveSpeciesData;
 use App\Business\Services\CreateSpeciesService;
+use App\Business\Services\DeleteSpeciesService;
 use App\Business\Services\IndexSpeciesService;
 use App\Business\Services\ShowSpeciesService;
 use App\Business\Services\UpdateSpeciesService;
@@ -27,6 +28,7 @@ class SpeciesController extends Controller
         protected UpdateSpeciesService $updateSpeciesService,
         protected IndexSpeciesService $indexSpeciesService,
         protected ShowSpeciesService $showSpeciesService,
+        protected DeleteSpeciesService $deleteSpeciesService,
     ) {}
 
     public function store(StoreSpecieRequest $request)
@@ -89,6 +91,24 @@ class SpeciesController extends Controller
             {
                 return $this->successResponse(
                     new SpeciesResource($response),
+                );
+            }
+        
+        return $this->errorResponse();
+    }
+
+    public function destroy(Species $species)
+    {
+        $this->authorize('delete', $species);
+
+        $response = $this->deleteSpeciesService->deleteSpecies($species);
+
+        if ($response)
+            {
+                return $this->successResponse(
+                    null,
+                    'Especie eliminada correctamente',
+                    Response::HTTP_OK
                 );
             }
         

@@ -64,4 +64,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/species', [SpeciesController::class, 'index']);
 
     Route::get('/species/{species}', [SpeciesController::class, 'show']);
+
+    Route::delete('/species/{species}', [SpeciesController::class, 'destroy']);
 });
