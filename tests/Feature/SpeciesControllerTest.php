@@ -207,36 +207,36 @@ test('No devuelve nada cuando el filtro descarta todos los registros', function 
 
 // Show
 test('Devuelve correctamente la información del registro de la especie', function () {
-    $permission = Permission::factory()->create(['name' => 'especies.view']);
+    $permission = Permission::factory()->create(['name' => 'species.view']);
     $this->role->permissions()->sync($permission->id);
 
     $species = Species::factory()->create();
 
     Animal::factory(10)->create(['species_id'    => $species->id]);
 
-    $response = $this->getJson("/api/spcies/{$species->id}");
+    $response = $this->getJson("/api/species/{$species->id}");
 
     $response->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(10, 'data.animals')
-        ->assertJsonPath('data.especies.name', $species->name);
+        ->assertJsonPath('data.especies.common_name', $species->name);
 });
 
 test('Falla al consultar la información de un registro inexistente', function () {
-    $permission = Permission::factory()->create(['name' => 'especies.view']);
+    $permission = Permission::factory()->create(['name' => 'species.view']);
     $this->role->permissions()->sync($permission->id);
 
-    $response = $this->getJson("/api/spcies/88");
+    $response = $this->getJson("/api/species/88");
 
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
         ->assertJsonPath('success', false);
 });
 
 test('Falla al tratar de consultar la información de un registro de especie sin permisos', function () {
     $species = Species::factory()->create();
 
-    $response = $this->getJson("/api/spcies/{$species->id}");
+    $response = $this->getJson("/api/species/{$species->id}");
 
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
 });
 
