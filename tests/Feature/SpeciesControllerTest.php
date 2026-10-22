@@ -242,7 +242,7 @@ test('Falla al tratar de consultar la información de un registro de especie sin
 
 // Destroy
 test('Elimina el registro de una especie correctamente', function () {
-    $permission = Permission::factory()->create(['name' => 'especies.delete']);
+    $permission = Permission::factory()->create(['name' => 'species.delete']);
     $this->role->permissions()->sync($permission->id);
 
     $species = Species::factory()->create();
@@ -254,12 +254,12 @@ test('Elimina el registro de una especie correctamente', function () {
 });
 
 test('Falla al tratar de eliminar un registro de una especie inexistente', function () {
-    $permission = Permission::factory()->create(['name' => 'especies.delete']);
+    $permission = Permission::factory()->create(['name' => 'species.delete']);
     $this->role->permissions()->sync($permission->id);
 
     $response = $this->deleteJson("/api/species/99");
 
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
         ->assertJsonPath('success', false);
 });
 
@@ -268,12 +268,12 @@ test('Falla al tratar de eliminar un registro de una especie sin permisos', func
 
     $response = $this->deleteJson("/api/species/{$species->id}");
 
-    $response->assertStatus(Response::HTTP_UNAUTHORIZED)
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
 });
 
 test('Falla al tratar de eliminar un registro de una especie en uso', function () {
-    $permission = Permission::factory()->create(['name' => 'especies.delete']);
+    $permission = Permission::factory()->create(['name' => 'species.delete']);
     $this->role->permissions()->sync($permission->id);
 
     $species = Species::factory()->create();
@@ -282,6 +282,6 @@ test('Falla al tratar de eliminar un registro de una especie en uso', function (
 
     $response = $this->deleteJson("/api/species/{$species->id}");
 
-    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false);
 });
