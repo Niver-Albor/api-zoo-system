@@ -19,7 +19,7 @@ class HabitatFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique()->sentence(2),
+            'name' => strtoupper(trim($this->faker->unique()->sentence(2))),
             'type' => $this->faker->randomElement(['aviary', 'aquatic', 'terrestrial']),
             'capacity' => $this->faker->randomDigit(),
             'status' => $this->faker->randomElement(['available', 'maintenance'])
