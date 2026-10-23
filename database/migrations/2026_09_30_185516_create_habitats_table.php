@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('capacity', false, true);
             $table->enum('status', ['available', 'maintenance'])->default('available');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
