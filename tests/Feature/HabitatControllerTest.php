@@ -33,10 +33,11 @@ test('Registra correctamente un habitat', function () {
     $response = $this->postJson('/api/habitats', $payload);
 
     $response->assertStatus(Response::HTTP_CREATED)
-        ->assertJsonPath('data.0.name', strtoupper(trim($payload['name'])))
+        ->assertJsonPath('data.name', strtoupper(trim($payload['name'])))
         ->assertJsonStructure([
             'success',
             'data'  => [
+                'id',
                 'name',
                 'type',
                 'capacity',
@@ -55,7 +56,7 @@ test('Falla al tratar de registrar un habitat con datos invalidos', function () 
     $payload = [
         'name'      => $habitat1->name,
         'type'      => 'tipo-invalido',
-        'capacity'  => '123456789',
+        'capacity'  => 'qwerty',
         'status'    => 'invalid',
 
     ];
