@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AnimalController;
+use App\Http\Controllers\HabitatController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\SpeciesController;
 use App\Http\Controllers\UserController;
@@ -66,4 +67,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/species/{species}', [SpeciesController::class, 'show']);
 
     Route::delete('/species/{species}', [SpeciesController::class, 'destroy']);
+});
+
+// Módulo de Habitats.
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/habitats', [HabitatController::class, 'store']);
 });
