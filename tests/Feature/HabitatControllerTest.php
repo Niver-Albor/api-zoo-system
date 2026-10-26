@@ -219,7 +219,7 @@ test('Devuelve correctamente el catalogo de habitats', function () {
     $response->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(5, 'data')
         ->assertJsonPath('data.0.name', $habitat->name)
-        ->assertJsonCount(5, 'data.0.animals_count');
+        ->assertJsonPath('data.0.animals_count', 5);
 });
 
 test('No devuelve nada cuando el filtro descarta todoso los registros de habitats', function () {
