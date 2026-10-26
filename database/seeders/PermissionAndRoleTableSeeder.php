@@ -50,6 +50,7 @@ class PermissionAndRoleTableSeeder extends Seeder
             ['name' => 'habitats.create', 'description' => 'Registrar nuevos habitats'],
             ['name' => 'habitats.update', 'description' => 'Editar datos de cualquier habitat'],
             ['name' => 'habitats.view', 'description'   => 'Ver listado general de los habitats'],
+            ['name' => 'habitats.delete', 'description' => 'Eliminar o dar de baja cualquier habitat']
         ];
 
         foreach ($permissions as $permission)

@@ -28,4 +28,9 @@ class HabitatPolicy
     {
         return $user->hasPermission('habitats.view');
     }
+
+    public function destroy(User $user)
+    {
+        return $user->hasPermission('habitats.delete');
+    }
 }
