@@ -201,22 +201,120 @@ test('Falla al tratar de actualizar la capacidad de un registro de habitat menor
 });
 
 // Index
-test('Devuelve correctamente el catalogo de habitats');
+test('Devuelve correctamente el catalogo de habitats', function () {
+    $permission = Permission::factory()->create(['name' => 'habitats.view']);
+    $this->role->permissions()->sync($permission->id);
 
-test('No devuelve nada cuando el filtro descarta todoso los registros de habitats');
+    Habitat::factory(30)->create();
+
+    $habitat = Habitat::skip(5)->firstOrFail();
+
+    Animal::factory(5)->create(['habitat_id'    => $habitat->id]);
+
+    $filters = "per_page=5&page=2";
+
+    $response = $this->getJson("/api/habitats?{$filters}");
+
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(5, 'data')
+        ->assertJsonPath('data.0.name', $habitat->name)
+        ->assertJsonCount(5, 'data.0.animals_count');
+});
+
+test('No devuelve nada cuando el filtro descarta todoso los registros de habitats', function () {
+    $permission = Permission::factory()->create(['name' => 'habitats.view']);
+    $this->role->permissions()->sync($permission->id);
+
+    Habitat::factory(50)->create();
+
+    $filters = 'per_page=5&page=2&search=laguna-05';
+
+    $response = $this->getJson("/api/habitats?{$filters}");
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(0, 'data');
+});
 
 // Show
-test('Devuelve correctamente la información del registro del habitat');
+test('Devuelve correctamente la información del registro del habitat', function () {
+    $permission = Permission::factory()->create(['name' => 'habitats.view']);
+    $this->role->permissions()->sync($permission->id);
 
-test('Falla al consultar la información de un registro inexistente');
+    $habitat = Habitat::factory()->create();
 
-test('Falla al tratar de consultar la información de un registro de habitat sin permisos');
+    Animal::factory(10)->create(['habitat_id'   => $habitat->id]);
+
+    $response = $this->getJson("/api/habitats/{$habitat->id}");
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(10, 'data.animals_count')
+        ->assertJsonPath('data.name', $habitat->name);
+});
+
+test('Falla al consultar la información de un registro inexistente', function () {
+    $permission = Permission::factory()->create(['name' => 'habitats.view']);
+    $this->role->permissions()->sync($permission->id);
+
+    $response = $this->getJson("/api/habitats/999");
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de consultar la información de un registro de habitat sin permisos', function () {
+    $habitat = Habitat::factory()->create();
+
+    Animal::factory(10)->create(['habitat_id'   => $habitat->id]);
+
+    $response = $this->getJson("/api/habitats/{$habitat->id}");
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
 
 // Destroy
-test('Eliminar el registro de un habitat correctamente');
+test('Eliminar el registro de un habitat correctamente', function () {
+    $permission = Permission::factory()->create(['name' => 'habitats.delete']);
+    $this->role->permissions()->sync($permission->id);
 
-test('Falla al tratar de eliminar un registro de un habitat inexistente');
+    $habitat = Habitat::factory()->create();
 
-test('Falla al tratar de eliminar un registro de un habitat sin permisos');
+    $response = $this->deleteJson("/api/habitats/{$habitat->id}");
 
-test('Falla al tratar de eliminar un registro de un habitat en uso');
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonPath('success', true);
+});
+
+test('Falla al tratar de eliminar un registro de un habitat inexistente', function () {
+    $permission = Permission::factory()->create(['name' => 'habitats.delete']);
+    $this->role->permissions()->sync($permission->id);
+
+    $response = $this->deleteJson("/api/habitats/999");
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de eliminar un registro de un habitat sin permisos', function () {
+    $habitat = Habitat::factory()->create();
+
+    $response = $this->deleteJson("/api/habitats/{$habitat->id}");
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de eliminar un registro de un habitat en uso', function () {
+    $permission = Permission::factory()->create(['name' => 'habitats.delete']);
+    $this->role->permissions()->sync($permission->id);
+
+    $habitat = Habitat::factory()->create();
+
+    Animal::factory(10)->create(['habitat_id'   => $habitat->id]);
+
+    $response = $this->deleteJson("/api/habitats/{$habitat->id}");
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
