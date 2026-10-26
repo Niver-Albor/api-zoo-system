@@ -72,4 +72,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 // Módulo de Habitats.
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/habitats', [HabitatController::class, 'store']);
+
+    Route::put('/habitats/{habitat}', [HabitatController::class, 'update']);
 });
