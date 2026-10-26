@@ -315,6 +315,6 @@ test('Falla al tratar de eliminar un registro de un habitat en uso', function ()
 
     $response = $this->deleteJson("/api/habitats/{$habitat->id}");
 
-    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false);
 });
