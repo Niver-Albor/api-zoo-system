@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Business\DTOs\IndexHabitatData;
 use App\Business\DTOs\SaveHabitatData;
 use App\Business\Services\CreateHabitatService;
+use App\Business\Services\DeleteHabitatService;
 use App\Business\Services\IndexHabitatService;
 use App\Business\Services\ShowHabitatService;
 use App\Business\Services\UpdateHabitatService;
@@ -26,6 +27,7 @@ class HabitatController extends Controller
         protected UpdateHabitatService $updateHabitatService,
         protected IndexHabitatService $indexHabitatService,
         protected ShowHabitatService $showHabitatService,
+        protected DeleteHabitatService $delteHabitatService,
     ) {}
 
     public function store(StoreHabitatRequest $request)
@@ -93,6 +95,23 @@ class HabitatController extends Controller
                 );
             }
 
+        return $this->errorResponse();
+    }
+
+    public function destroy(Habitat $habitat)
+    {
+        $this->authorize('destroy', $habitat);
+
+        $response = $this->delteHabitatService->deleteHabitat($habitat);
+
+        if ($response)
+            {
+                return $this->successResponse(
+                    null,
+                    'Habitat eliminado correctamente'
+                );
+            }
+        
         return $this->errorResponse();
     }
 }

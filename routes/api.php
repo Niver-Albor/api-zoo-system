@@ -78,4 +78,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/habitats', [HabitatController::class, 'index']);
 
     Route::get('/habitats/{habitat}', [HabitatController::class, 'show']);
+
+    Route::delete('/habitats/{habitat}', [HabitatController::class, 'destroy']);
 });
