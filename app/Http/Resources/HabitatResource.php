@@ -21,6 +21,14 @@ class HabitatResource extends JsonResource
             'capacity'      => $this->capacity,
             'status'        => $this->status,
             'animals_count' => $this->whenHas('animals_count', fn () => $this?->animals_count),
+            'animals'       => $this->whenLoaded('animals', function () {
+                return $this->animals->map(function ($animal) {
+                    return [
+                        'name'  => $animal->name,
+                        'code'  => $animal->code,
+                    ];
+                });
+            }),
         ];
     }
 }
