@@ -6,6 +6,7 @@ use App\Business\DTOs\IndexHabitatData;
 use App\Business\DTOs\SaveHabitatData;
 use App\Business\Services\CreateHabitatService;
 use App\Business\Services\IndexHabitatService;
+use App\Business\Services\ShowHabitatService;
 use App\Business\Services\UpdateHabitatService;
 use App\Http\Requests\IndexHabitatRequest;
 use App\Http\Requests\StoreHabitatRequest;
@@ -24,6 +25,7 @@ class HabitatController extends Controller
         protected CreateHabitatService $createHabitatService,
         protected UpdateHabitatService $updateHabitatService,
         protected IndexHabitatService $indexHabitatService,
+        protected ShowHabitatService $showHabitatService,
     ) {}
 
     public function store(StoreHabitatRequest $request)
@@ -76,5 +78,21 @@ class HabitatController extends Controller
 
 
         return HabitatResource::collection($response);
+    }
+
+    public function show(Habitat $habitat)
+    {
+        $this->authorize('view', $habitat);
+
+        $response = $this->showHabitatService->showHabitat($habitat);
+
+        if ($response)
+            {
+                return $this->successResponse(
+                    new HabitatResource($response)
+                );
+            }
+
+        return $this->errorResponse();
     }
 }
