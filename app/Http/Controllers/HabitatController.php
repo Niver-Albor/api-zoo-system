@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\DTOs\IndexHabitatData;
 use App\Business\DTOs\SaveHabitatData;
 use App\Business\Services\CreateHabitatService;
+use App\Business\Services\IndexHabitatService;
 use App\Business\Services\UpdateHabitatService;
+use App\Http\Requests\IndexHabitatRequest;
 use App\Http\Requests\StoreHabitatRequest;
 use App\Http\Requests\UpdateHabitatRequest;
 use App\Http\Resources\HabitatResource;
@@ -20,6 +23,7 @@ class HabitatController extends Controller
     public function __construct(
         protected CreateHabitatService $createHabitatService,
         protected UpdateHabitatService $updateHabitatService,
+        protected IndexHabitatService $indexHabitatService,
     ) {}
 
     public function store(StoreHabitatRequest $request)
@@ -60,5 +64,17 @@ class HabitatController extends Controller
             }
         
         return $this->errorResponse();
+    }
+
+    public function index(IndexHabitatRequest $request)
+    {
+        $this->authorize('view', Habitat::class);
+
+        $filters = IndexHabitatData::fromRequest($request);
+
+        $response = $this->indexHabitatService->indexHabitat($filters);
+
+
+        return HabitatResource::collection($response);
     }
 }
