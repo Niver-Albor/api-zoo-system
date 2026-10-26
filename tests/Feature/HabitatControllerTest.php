@@ -248,7 +248,7 @@ test('Devuelve correctamente la información del registro del habitat', function
     $response = $this->getJson("/api/habitats/{$habitat->id}");
 
     $response->assertStatus(Response::HTTP_OK)
-        ->assertJsonCount(10, 'data.animals_count')
+        ->assertJsonCount(10, 'data.animals')
         ->assertJsonPath('data.name', $habitat->name);
 });
 
