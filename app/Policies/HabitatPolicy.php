@@ -23,4 +23,9 @@ class HabitatPolicy
     {
         return $user->hasPermission('habitats.update');
     }
+
+    public function view(User $user)
+    {
+        return $user->hasPermission('habitats.view');
+    }
 }
