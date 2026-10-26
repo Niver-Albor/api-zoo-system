@@ -48,6 +48,7 @@ class PermissionAndRoleTableSeeder extends Seeder
 
             // Módulo de Habitats
             ['name' => 'habitats.create', 'description' => 'Registrar nuevos habitats'],
+            ['name' => 'habitats.update', 'description' => 'Editar datos de cualquier habitat'],
         ];
 
         foreach ($permissions as $permission)

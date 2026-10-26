@@ -18,4 +18,9 @@ class HabitatPolicy
     {
         return $user->hasPermission('habitats.create');
     }
+
+    public function update(User $user)
+    {
+        return $user->hasPermission('habitats.update');
+    }
 }
