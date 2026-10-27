@@ -50,7 +50,7 @@ class PermissionAndRoleTableSeeder extends Seeder
             ['name' => 'habitats.create', 'description' => 'Registrar nuevos habitats'],
             ['name' => 'habitats.update', 'description' => 'Editar datos de cualquier habitat'],
             ['name' => 'habitats.view', 'description'   => 'Ver listado general de los habitats'],
-            ['name' => 'habitats.delete', 'description' => 'Eliminar o dar de baja cualquier habitat']
+            ['name' => 'habitats.delete', 'description' => 'Eliminar o dar de baja cualquier habitat'],
         ];
 
         foreach ($permissions as $permission)
@@ -58,9 +58,9 @@ class PermissionAndRoleTableSeeder extends Seeder
                 Permission::firstOrCreate(['name' => $permission['name']], $permission);
             }
 
-        $adminRole = Role::firstOrCreate(['name' => 'owner'], ['description' => 'Administrador general']);
-        $vetRole = Role::firstOrCreate(['name' => 'veterinarian'], ['description' => 'Personal médico']);
-        $assistantRole = Role::firstOrCreate(['name' => 'assistant'], ['description' => 'Auxiliar técnico']);
+        $adminRole = Role::firstOrCreate(['name' => 'owner', 'description' => 'Administrador general', 'is_system'  => true]);
+        $vetRole = Role::firstOrCreate(['name' => 'veterinarian', 'description' => 'Personal médico']);
+        $assistantRole = Role::firstOrCreate(['name' => 'assistant', 'description' => 'Auxiliar técnico']);
 
         $allPermissionIds = Permission::pluck('id');
         $adminRole->permissions()->sync($allPermissionIds);
