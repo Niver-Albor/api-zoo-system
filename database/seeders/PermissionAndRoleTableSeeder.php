@@ -51,6 +51,12 @@ class PermissionAndRoleTableSeeder extends Seeder
             ['name' => 'habitats.update', 'description' => 'Editar datos de cualquier habitat'],
             ['name' => 'habitats.view', 'description'   => 'Ver listado general de los habitats'],
             ['name' => 'habitats.delete', 'description' => 'Eliminar o dar de baja cualquier habitat'],
+
+            // Módulo de Roles
+            ['name' => 'roles.create', 'description'    => 'Registrar nuevos roles'],
+            ['name' => 'roles.update', 'description'    => 'Editar datos de cualquier rol'],
+            ['name' => 'roles.view', 'description'      => 'Ver listado general de los roles'],
+            ['name' => 'roles.delete', 'description'    => 'Eliminar o dar de baja cualquier rol'],
         ];
 
         foreach ($permissions as $permission)
