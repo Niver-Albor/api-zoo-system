@@ -58,3 +58,16 @@ test('Falla al tratar de consultar los permisos sin permisos', function () {
     $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
 });
+
+test('Falla al tratar de consultar los permisos sin autenticación', function () {
+    $this->app['auth']->forgetGuards();
+    $permission = Permission::factory()->create(['name' => 'roles.create']);
+    $this->role->permissions()->sync($permission->id);
+
+    Permission::factory(4)->create();
+
+    $response = $this->getJson('/api/permissions');
+
+    $response->assertStatus(Response::HTTP_UNAUTHORIZED)
+        ->assertJsonPath('success', false);
+});
