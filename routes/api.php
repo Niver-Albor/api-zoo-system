@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\GetPermissionsAction;
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\HabitatController;
 use App\Http\Controllers\MedicalRecordController;
@@ -81,3 +82,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::delete('/habitats/{habitat}', [HabitatController::class, 'destroy']);
 });
+
+Route::get('/permissions', GetPermissionsAction::class)
+    ->middleware(['auth:sanctum']);
