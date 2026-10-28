@@ -143,19 +143,214 @@ test('Falla al tratar de crear un rol sin suficientes permisos', function () {
 });
 
 // Update
-test('Actualiza correctamente los datos de un rol');
+test('Actualiza correctamente los datos de un rol', function () {
+    Permission::factory()->create(['name' => 'roles.update']);
+    Permission::factory()->create(['name' => 'roles.create']); // Para poder crear el rol con la api POST/roles
+    Permission::factory(5)->create();
 
-test('Falla al tratar de actualizar un rol inexistente');
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
 
-test('Falla al tratar de actualizar un rol con datos invalidos');
+    // Obtiene los permisos de la api GET/permissions
+    $permissionsResponse = $this->getJson('/api/permissions');
 
-test('Falla al tratar de actualizar un rol sin permisos');
+    $permissionsResponse->assertStatus(Response::HTTP_OK); // Valida que haya devuelto los permisos
 
-test('Falla al tratar de actualizar su propio rol');
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
 
-test('Falla al tratar de actualizar un rol del sistema');
+    $payload = [
+        'name'  => "    Nombre Actualizado      ",
+        'description'   => 'Descripcion',
+        'permissions_id'    => $permissionsToAssign
+    ];
 
-test('Falla al tratar de actualizar un rol con permisos que no posee');
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED); // Valida que haya creado el rol.
+
+    $roleId = $storeResponse->json('data.id');
+
+    $payload = [
+        'name'  => '           nuevo nombre        ',
+        'description'   => 'Nueva descripcion',
+        'permissions_id'    => $allPermissionIds
+    ];
+
+    $updateResponse = $this->putJson("/api/roles/{$roleId}", $payload);
+
+    $updateResponse->assertStatus(Response::HTTP_OK)
+        ->assertJsonPath('data.name', strtoupper(trim($payload['name'])))
+        ->assertJsonCount(7, 'data.permissions');
+});
+
+test('Falla al tratar de actualizar un rol inexistente', function () {
+    $permission = Permission::factory()->create(['name' => 'roles.update']);
+    $this->role->permissions()->sync($permission);
+
+    // Obtiene los permisos de la api GET/permissions
+    $permissionsResponse = $this->getJson('/api/permissions');
+
+    $permissionsResponse->assertStatus(Response::HTTP_OK); // Valida que haya devuelto los permisos
+
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
+
+    $payload = [
+        'name'  => "         nombre de rol ",
+        'description'   => 'Descripcion',
+        'permissions_id'    => $permissionsToAssign
+    ];
+
+    $response = $this->putJson('/api/roles/999', $payload);
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de actualizar un rol con datos invalidos', function () {
+    Permission::factory()->create(['name' => 'roles.update']);
+    Permission::factory()->create(['name' => 'roles.create']); // Para poder crear el rol con la api POST/roles
+    Permission::factory(5)->create();
+
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
+
+    // Obtiene los permisos de la api GET/permissions
+    $permissionsResponse = $this->getJson('/api/permissions');
+
+    $permissionsResponse->assertStatus(Response::HTTP_OK); // Valida que haya devuelto los permisos
+
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
+
+    $payload = [
+        'name'  => 'nombre',
+        'description'   => 'Descripcion',
+        'permissions_id'    => $permissionsToAssign
+    ];
+
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED); // Valida que haya creado el rol.
+
+    $roleId = $storeResponse->json('data.id');
+
+    $payload = [
+        'name'  => '      nombre nuevo',
+        'description'   => 'descripcion nueva',
+        'permissions_id'    => [99,88]
+    ];
+
+    $updateResponse = $this->putJson("/api/roles/{$roleId}", $payload);
+
+    $updateResponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de actualizar un rol sin permisos', function () {
+    Permission::factory()->create(['name' => 'roles.create']);
+    Permission::factory(5)->create();
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
+
+    // Obtiene los permisos de la api GET/permissions
+    $permissionsResponse = $this->getJson('/api/permissions');
+
+    $permissionsResponse->assertStatus(Response::HTTP_OK); // Valida que haya devuelto los permisos
+
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
+
+    $payload = [
+        'name'  => 'nombre',
+        'description'   => 'Descripcion',
+        'permissions_id'    => $permissionsToAssign
+    ];
+
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED); // Valida que haya creado el rol.
+
+    $roleId = $storeResponse->json('data.id');
+
+    $payload = [
+        'name'  => '      nombre nuevo',
+        'description'   => 'descripcion nueva',
+        'permissions_id'    => $allPermissionIds
+    ];
+
+    $updateResponse = $this->putJson("/api/roles/{$roleId}", $payload);
+
+    $updateResponse->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de actualizar su propio rol', function () {
+    $permission = Permission::factory()->create(['name' => 'roles.update']);
+    $this->role->permissions()->sync($permission);
+
+    $payload = [
+        'name'  => 'nombre de ejemplo que no puede generar la factory, 100% real no fake'
+    ];
+
+    $roleId = $this->role->id;
+
+    $response = $this->putJson("/api/roles/{$roleId}", $payload);
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de actualizar un rol del sistema', function () {
+    $permission = Permission::factory()->create(['name' => 'roles.update']);
+    $this->role->permissions()->sync($permission);
+
+    $payload = [
+        'name'  => 'nombre de ejemplo que no puede generar la factory, 100% real no fake'
+    ];
+
+    $systemRole = Role::factory()->create(['is_system'  => true]);
+
+    $response = $this->putJson("/api/roles/{$systemRole->id}", $payload);
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de actualizar un rol con permisos que no posee', function () {
+    Permission::factory()->create(['name' => 'roles.update']);
+    Permission::factory()->create(['name' => 'roles.create']); // Para poder crear el rol con la api POST/roles
+
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
+
+    $payload = [
+        'name'  => 'nombre',
+        'description'  => 'descripcion',
+        'permissions_id'    => $allPermissionIds
+    ];
+
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED); // Valida que haya creado el rol.
+
+    $roleId = $storeResponse->json('data.id');
+
+    Permission::factory(5)->create();
+
+    // Obtiene los permisos de la api GET/permissions
+    $permissionsResponse = $this->getJson('/api/permissions');
+
+    $permissionsResponse->assertStatus(Response::HTTP_OK); // Valida que haya devuelto los permisos
+
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->pluck('id')->toArray();
+
+    $payload = [
+        'permissions_id'    => $permissionsToAssign
+    ];
+
+    $updateResponse = $this->putJson("/api/roles/{$roleId}", $payload);
+
+    $updateResponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonPath('success', false);
+});
 
 // Index
 test('Devuelve correctamente el catalogo de los roles');
