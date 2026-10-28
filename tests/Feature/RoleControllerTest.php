@@ -234,15 +234,24 @@ test('Falla al tratar de actualizar un rol con datos invalidos', function () {
     $roleId = $storeResponse->json('data.id');
 
     $payload = [
-        'name'  => '      nombre nuevo',
-        'description'   => 'descripcion nueva',
+        'name'  => $this->role->name,
+        'description'   => 99999999,
         'permissions_id'    => [99,88]
     ];
 
     $updateResponse = $this->putJson("/api/roles/{$roleId}", $payload);
 
+
     $updateResponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonPath('success', false);
+        ->assertJsonPath('success', false)
+        ->assertJsonStructure([
+            'message'   => [
+                'name',
+                'description',
+                'permissions_id.0'
+            ],
+            'success'
+        ]);
 });
 
 test('Falla al tratar de actualizar un rol sin permisos', function () {
