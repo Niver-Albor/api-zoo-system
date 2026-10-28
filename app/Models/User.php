@@ -58,18 +58,20 @@ class User extends Authenticatable implements Auditable
         ];
     }
 
-    public function roles()
+    public function role()
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function hasPermission(string $permissionName): bool
+    public function hasPermission(string|int $permission): bool
     {
-        if ($this->roles->permissions->contains('name', $permissionName))
-            {
-                return true;
-            }
-        return false;
+        if (!$this->role)
+            return false;
+
+        if (is_int($permission))
+            return $this->role->permissions()->where('id', $permission)->exists();
+    
+        return $this->role->permissions()->where('name', $permission)->exists();
     }
 
     public function getRouteKeyName(): string
@@ -79,6 +81,6 @@ class User extends Authenticatable implements Auditable
 
     public function hasRoles(string $roleName): bool
     {
-        return $this->roles->contains('name', $roleName);
+        return $this->role->contains('name', $roleName);
     }
 }
