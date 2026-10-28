@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Business\DTOs\SaveRoleData;
 use App\Business\Services\StoreRoleService;
+use App\Business\Services\UpdateRoleService;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
@@ -18,6 +19,7 @@ class RoleController extends Controller
 
     public function __construct(
         protected StoreRoleService $storeRoleService,
+        protected UpdateRoleService $updateRoleService,
     ) {}
 
     public function store(StoreRoleRequest $request)
@@ -44,7 +46,19 @@ class RoleController extends Controller
     {
         $this->authorize('update', $role);
 
+        $dto = SaveRoleData::fromRequest($request);
+
+        $response = $this->updateRoleService->updateRole($role, $dto, $request->user());
+
         
-        dd('hasta aqui');
+        if ($response)
+            {
+                return $this->successResponse(
+                    new RoleResource($response),
+                    'rol actualizado correctamente',
+                );
+            }
+
+        return $this->errorResponse();
     }
 }
