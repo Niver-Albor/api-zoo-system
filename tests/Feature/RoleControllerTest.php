@@ -27,7 +27,7 @@ test('Registra correctamente un rol', function () {
     // Devuelve los permisos correctamente.
     $permissionsResponse->assertStatus(Response::HTTP_OK);
 
-    $permissionsToAssign = collect($permissionsResponse->json('data')->take(2)->pluck('id')->toArray());
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
 
     $payload = [
         'name'              => '      Rol nuevo del TEST    ',
@@ -54,7 +54,7 @@ test('Falla al tratar de crear un rol con datos invalidos', function () {
     $payload = [
         'name'              => $oldRole->name,
         'description'       => 1234567,
-        'permissions_id'    => [7,3,99],
+        'permissions_id'    => [99],
     ];
 
     $roleResponse = $this->postJson('/api/roles', $payload);
@@ -65,38 +65,31 @@ test('Falla al tratar de crear un rol con datos invalidos', function () {
             'message'   => [
                 'name',
                 'description',
-                'permissions_id'
+                'permissions_id.0'
             ],
             'success'
         ]);
 });
 
-test('Falla al tratar de creat un rol sin permisos (roles.update o roles.create)', function () {
+test('Falla al tratar de crear un rol sin los permisos adecuados', function () {
     Permission::factory(5)->create();
+
+    // Necesito sacar los IDs de los permisos por mi cuenta ya que la consulta a la API GET/permissions tambien fallaría.
     $allPermissionIds = Permission::all()->pluck('id');
-    $this->role->permissions()->sync($allPermissionIds); // Necesita tener todos los permisos si pretende asignarlos a un rol.
-
-    $permissionsResponse = $this->getJson('/api/permissions');
-
-    // Devuelve los permisos correctamente.
-    $permissionsResponse->assertStatus(Response::HTTP_OK);
-
-    $permissionsToAssign = collect($permissionsResponse->json('data')->take(2)->pluck('id')->toArray());
 
     $payload = [
-        'name'              => '      Rol nuevo del TEST    ',
-        'description'       => 'descripcion del rol',
-        'permissions_id'    => $permissionsToAssign
+        'name'              => '        nombre nuevo       ',
+        'description'       => 'descripcion',
+        'permissions_id'    => $allPermissionIds
     ];
 
-    $roleResponse = $this->postJson('/api/roles', $payload);
+    $response = $this->postJson(('/api/roles'), $payload);
 
-    $roleResponse->assertStatus(Response::HTTP_FORBIDDEN)
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
 });
 
 test('Falla al tratar de crear un rol sin autenticación', function () {
-    $this->app['auth']->forgetGuards();
     $permission = Permission::factory()->create(['name' => 'roles.create']);
     Permission::factory(5)->create();
     $allPermissionIds = Permission::all()->pluck('id');
@@ -107,13 +100,15 @@ test('Falla al tratar de crear un rol sin autenticación', function () {
     // Devuelve los permisos correctamente.
     $permissionsResponse->assertStatus(Response::HTTP_OK);
 
-    $permissionsToAssign = collect($permissionsResponse->json('data')->take(2)->pluck('id')->toArray());
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
 
     $payload = [
         'name'              => '      Rol nuevo del TEST    ',
         'description'       => 'descripcion del rol',
         'permissions_id'    => $permissionsToAssign
     ];
+
+    $this->app['auth']->forgetGuards();
 
     $roleResponse = $this->postJson('/api/roles', $payload);
 
@@ -132,7 +127,7 @@ test('Falla al tratar de crear un rol sin suficientes permisos', function () {
     // Devuelve los permisos correctamente.
     $permissionsResponse->assertStatus(Response::HTTP_OK);
 
-    $permissionsToAssign = collect($permissionsResponse->json('data')->take(2)->pluck('id')->toArray());
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
 
     $payload = [
         'name'              => '      Rol nuevo del TEST    ',
@@ -142,7 +137,8 @@ test('Falla al tratar de crear un rol sin suficientes permisos', function () {
 
     $roleResponse = $this->postJson('/api/roles', $payload);
 
-    $roleResponse->assertStatus(Response::HTTP_BAD_REQUEST)
+
+    $roleResponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false);
 });
 

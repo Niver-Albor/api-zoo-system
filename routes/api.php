@@ -4,6 +4,7 @@ use App\Actions\GetPermissionsAction;
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\HabitatController;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SpeciesController;
 use App\Http\Controllers\UserController;
 use App\Models\MedicalRecord;
@@ -83,5 +84,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/habitats/{habitat}', [HabitatController::class, 'destroy']);
 });
 
+// Permisos
 Route::get('/permissions', GetPermissionsAction::class)
     ->middleware(['auth:sanctum']);
+
+// Módulo de Roles
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/roles', [RoleController::class, 'store']);
+});

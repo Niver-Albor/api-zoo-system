@@ -9,6 +9,7 @@ use App\Http\Middleware\CheckPermission;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -35,7 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     ], Response::HTTP_BAD_REQUEST);
                 }
         });
-        $exceptions->render(function (DomainException $e, $request) {
+        $exceptions->render(function (DomainException | ValidationException $e, $request) {
             if ($request->is('api/*'))
                 {
                     return response()->json([
