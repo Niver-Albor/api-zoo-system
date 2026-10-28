@@ -5,23 +5,16 @@ namespace App\Business\Services;
 use App\Business\DTOs\SaveRoleData;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Validation\ValidationException;
+use App\Traits\HasRoles;
 
 class StoreRoleService
 {
+    use HasRoles;
+
     public function storeRole(SaveRoleData $dto, User $user): Role
     {
-        if ($dto->permissionsId)
-            {
-                foreach ($dto->permissionsId as $per)
-                    {
-                        if (!$user->hasPermission($per))
-                            throw ValidationException::withMessages([
-                            'No se pueden asignar permisos que no se poseen'
-                        ]);
-                    }
-            }
-
+        
+        $this->validateUserPermissions($user, $dto->permissionsId);
 
         $role = Role::create([
             'name'          => $dto->name,
