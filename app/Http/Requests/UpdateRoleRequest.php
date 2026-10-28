@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Override;
 
-class UpdateRoleRequest extends FormRequest
+class UpdateRoleRequest extends ApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
