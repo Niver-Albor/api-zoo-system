@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Business\DTOs\SaveRoleData;
 use App\Business\Services\StoreRoleService;
 use App\Http\Requests\StoreRoleRequest;
+use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use App\Traits\ApiResponse;
@@ -37,5 +38,10 @@ class RoleController extends Controller
             }
         
         return $this->errorResponse();
+    }
+
+    public function update(UpdateRoleRequest $request, Role $role)
+    {
+        dd('hasta aqui');
     }
 }

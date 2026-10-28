@@ -91,4 +91,6 @@ Route::get('/permissions', GetPermissionsAction::class)
 // Módulo de Roles
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/roles', [RoleController::class, 'store']);
+
+    Route::put('/roles/{role}', [RoleController::class, 'update']);
 });
