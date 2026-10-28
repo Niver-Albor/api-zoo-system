@@ -42,6 +42,9 @@ class RoleController extends Controller
 
     public function update(UpdateRoleRequest $request, Role $role)
     {
+        $this->authorize('update', $role);
+
+        
         dd('hasta aqui');
     }
 }
