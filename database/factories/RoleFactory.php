@@ -18,7 +18,7 @@ class RoleFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => strtoupper(trim($this->faker->words(2, true))),
+            'name' => strtoupper(trim($this->faker->unique()->words(2, true))),
             'description' => $this->faker->sentences(2, true)
         ];
     }
