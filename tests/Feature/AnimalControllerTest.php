@@ -251,15 +251,17 @@ test('Falla si se intenta actualizar un registro inexistente', function () {
     $response->assertStatus(Response::HTTP_BAD_REQUEST);
 });
 
+// Destroy
 test('Elimina un registro correctamente', function () {
     $createPermission = Permission::factory()->create(['name' => 'animals.delete']);
     $this->role->permissions()->sync($createPermission->id);
 
-    Animal::factory()->create(['code' => 'LEO-001']);
+    $animal = Animal::factory()->create();
 
-    $response = $this->deleteJson('api/animals/LEO-001');
+    $response = $this->deleteJson("api/animals/{$animal->code}");
 
-    $response->assertStatus(Response::HTTP_OK);
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonPath('success', true);
 });
 
 test('Falla si se intenta eliminar un registro inexistente', function () {
@@ -268,5 +270,15 @@ test('Falla si se intenta eliminar un registro inexistente', function () {
 
     $response = $this->deleteJson('api/animals/LEO-999');
 
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de eliminar un animal sin permisos', function () {
+    $animal = Animal::factory()->create();
+
+    $response = $this->deleteJson("api/animals/{$animal->code}");
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
 });
