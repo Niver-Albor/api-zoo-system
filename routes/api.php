@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/animals', [AnimalController::class, 'index']);
 
-    Route::get('/animals/{code}', [AnimalController::class, 'show']);
+    Route::get('/animals/{animal}', [AnimalController::class, 'show']);
 
     Route::post('/animals', [AnimalController::class, 'store']);
 

@@ -4,18 +4,12 @@ namespace App\Business\Services;
 
 use App\Models\Animal;
 
-
 class ShowAnimalService
 {
-    /**
-     * Hola Mundo!
-     */
-    public function showAnimal(string $code)
+    public function showAnimal(Animal $animal): Animal
     {
-        $animal = Animal::where('code', 'LIKE', "{$code}%")->get();
+        $animal->load(['species', 'habitat']);
 
-        // dd($animal->toArray());
-
-        return $animal->toArray();
+        return $animal;
     }
 }

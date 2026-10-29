@@ -53,20 +53,22 @@ class AnimalController extends Controller
         return $this->successResponse(data:$payLoad,code:Response::HTTP_OK);
     }
 
-    public function show(FindAnimalRequest $request)
+    public function show(Animal $animal)
     {
-        $this->authorize('show', Animal::class);
+        $this->authorize('show', $animal);
 
-        $payLoad = $this->showAnimalService->showAnimal($request->query('code'));
+        $reponse = $this->showAnimalService->showAnimal($animal);
 
-        // dd($payLoad);
-
-        if ($payLoad)
+        if ($reponse)
             {
-                return $this->successResponse(data: $payLoad, code: Response::HTTP_FOUND);
+                return $this->successResponse(
+                    new AnimalResource($reponse),
+                    'Animal encontrado exitosamente',
+                    Response::HTTP_FOUND
+                );
             }
-
-        return $this->errorResponse(message:'Código invalido.', code:Response::HTTP_NOT_FOUND);
+        
+        return $this->errorResponse();
     }
 
     public function store(StoreAnimalRequest $request)
