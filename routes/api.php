@@ -20,7 +20,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::put('/animals/{code}', [AnimalController::class, 'update']);
 
-    Route::delete('/animals/{code}', [AnimalController::class, 'destroy']);
+    Route::delete('/animals/{animal}', [AnimalController::class, 'destroy']);
 });
 
 // Módulo de Usuarios.
