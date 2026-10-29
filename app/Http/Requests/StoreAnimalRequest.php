@@ -38,11 +38,11 @@ class StoreAnimalRequest extends ApiFormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-        'code' => $this->code ? strtoupper(trim($this->code)) : null,
+        'code' => is_string($this->name) ? strtoupper(trim($this->code)) : null,
         ]);
 
         $this->merge([
-        'name' => $this->name ? strtoupper(trim($this->name)) : null,
+        'name' => is_string($this->name) ? strtoupper(trim($this->name)) : null,
         ]);
     }
 }
