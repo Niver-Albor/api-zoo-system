@@ -21,7 +21,7 @@ class HabitatFactory extends Factory
         return [
             'name' => strtoupper(trim($this->faker->unique()->sentence(2))),
             'type' => $this->faker->randomElement(['aviary', 'aquatic', 'terrestrial']),
-            'capacity' => $this->faker->randomDigit(),
+            'capacity' => $this->faker->numberBetween(1, 9999),
             'status' => $this->faker->randomElement(['available', 'maintenance'])
         ];
     }
