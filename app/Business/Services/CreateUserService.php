@@ -16,7 +16,7 @@ class CreateUserService
         $data['password'] = Hash::make($data['password']);
         $data['uuid'] = uuid_create(\UUID_TYPE_DEFAULT);
         
-        $user = User::create($data)->load('roles');
+        $user = User::create($data)->load('role');
 
         return $user;
     }

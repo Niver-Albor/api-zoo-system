@@ -111,7 +111,7 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
 
-        $user->load('roles');
+        $user->load('role');
 
         if ($user)
             {

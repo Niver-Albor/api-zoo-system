@@ -32,6 +32,6 @@ class UpdateUserService
 
         $user->update($data);
 
-        return $user->fresh()->load('roles');
+        return $user->fresh()->load('role');
     }
 }

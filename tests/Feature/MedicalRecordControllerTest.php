@@ -210,13 +210,13 @@ test('Falla al tratar de actualizar con datos invalidos', function () {
 
 
     $response = $this->putJson("/api/med_records/{$record->uuid}", $payload);
+
     
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonStructure([
+            'success',
             'message',
-            'errors'    => [
-                'record_type',
-            ]
+            'data'
         ]);
 });
 

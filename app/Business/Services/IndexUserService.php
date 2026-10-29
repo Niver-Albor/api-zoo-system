@@ -11,7 +11,7 @@ class IndexUserService
 {
     public function indexUser(array $filters): LengthAwarePaginator
     {
-        $query = User::with('roles');
+        $query = User::with('role');
 
         if(!empty($filters['status']))
             $query->withTrashed();
