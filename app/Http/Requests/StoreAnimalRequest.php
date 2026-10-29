@@ -30,7 +30,7 @@ class StoreAnimalRequest extends ApiFormRequest
             'name'              => 'required|string|max:100',
             'sex'               => 'nullable|in:male,female,unknown',
             'birth_date'        => 'nullable|date|before_or_equal:today',
-            'admission_date'    => 'nullable|date|before_or_equal:today',
+            'admission_date'    => 'required|date|before_or_equal:today',
             'health_status'     => 'nullable|in:healthy,treatment,quarantine',
         ];
     }
@@ -39,6 +39,10 @@ class StoreAnimalRequest extends ApiFormRequest
     {
         $this->merge([
         'code' => $this->code ? strtoupper(trim($this->code)) : null,
+        ]);
+
+        $this->merge([
+        'name' => $this->name ? strtoupper(trim($this->name)) : null,
         ]);
     }
 }

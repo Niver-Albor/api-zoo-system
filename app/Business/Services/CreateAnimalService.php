@@ -2,17 +2,27 @@
 
 namespace App\Business\Services;
 
-use App\Business\Entities\AnimalEntity;
+use App\Business\DTOs\SaveAnimalData;
 use App\Models\Animal;
+use App\Traits\HasAnimals;
+use Carbon\CarbonImmutable;
 
 class CreateAnimalService
 {
-    public function createAnimal(AnimalEntity $entity)
+    use HasAnimals;
+
+    public function createAnimal(SaveAnimalData $dto): Animal
     {
-        $animal = Animal::create($entity->toArray());
+        $this->validateHabitatCapacity($dto->habitatId);
 
-        $entity->id = $animal->id;
+        $this->validateDates($dto->admissionDate, $dto->birthDate ?? null);
 
-        return $entity->toArray();
+        $data = $dto->toArray();
+
+        $animal = Animal::create($data);
+
+        $animal->load(['species', 'habitat']);
+
+        return $animal;
     }
 }

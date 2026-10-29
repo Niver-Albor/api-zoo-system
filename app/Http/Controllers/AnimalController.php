@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Business\DTOs\SaveAnimalData;
-use App\Business\Entities\AnimalEntity;
 use App\Business\Services\CreateAnimalService;
 use App\Business\Services\DeleteAnimalService;
 use App\Business\Services\IndexAnimalService;
 use App\Business\Services\ShowAnimalService;
 use App\Business\Services\UpdateAnimalService;
-use App\Http\Requests\FindAnimalRequest;
 use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
 use App\Http\Resources\AnimalResource;
@@ -75,14 +73,20 @@ class AnimalController extends Controller
     {
         $this->authorize('store', Animal::class);
 
-        $animalEntity = AnimalEntity::createFromArray($request->validated());
+        $dto = SaveAnimalData::fromRequest($request);
 
-        $animal = $this->createAnimalService->createAnimal($animalEntity);
+        $response =  $this->createAnimalService->createAnimal($dto);
 
-        return $this->successResponse(
-            data: $animal, 
-            message: 'Animal creado exitosamente.', 
-            code: Response::HTTP_CREATED);
+        if ($response)
+            {
+                return $this->successResponse(
+                    new AnimalResource($response),
+                    'Animal creado correctamente',
+                    Response::HTTP_CREATED
+                );
+            }
+        
+        return $this->errorResponse();
     }
 
     public function update(UpdateAnimalRequest $request, Animal $animal)
