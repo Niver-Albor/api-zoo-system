@@ -154,29 +154,56 @@ test('Retorna el listado correcto de animales.', function () {
         ->assertJsonPath('data.0.id', $expectedFirstAnimalInPage->id);
 });
 
-test('Retorna la estructura JSON esperada para un code existente', function () {
-    $createPermission = Permission::factory()->create(['name' => 'animals.view']);
-    $this->role->permissions()->sync($createPermission->id);
+// Show
+test('Devuelve correctamente la información de un animal', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.view']);
+    $this->role->permissions()->sync($permission);
 
-    Animal::factory(5)->create();
-    Animal::factory()->create(['code' => 'LEO-002']);
+    $animal = Animal::factory()->create();
 
-    $response = $this->get("/api/animals/LEO-002");
+    $response = $this->getJson("/api/animals/{$animal->code}");
 
     $response->assertStatus(Response::HTTP_FOUND)
-        ->assertJsonPath('data.0.code', 'LEO-002');
+        ->assertJsonPath('data.code', $animal->code)
+        ->assertJsonStructure([
+            'success',
+            'data'  => [
+                'name',
+                'code',
+                'sex',
+                'health_status',
+                'birth_date',
+                'admission_date',
+                'species'   => [
+                    'id',
+                    'common_name',
+                ],
+                'habitat'   => [
+                    'id',
+                    'name',
+                ],
+            ],
+            'message'
+        ]);
 });
 
-test('Falla al consultar con un code invalido', function () {
-    $createPermission = Permission::factory()->create(['name' => 'animals.view']);
-    $this->role->permissions()->sync($createPermission->id);
+test('Falla al tratar de consultar la información de un animal sin permisos', function () {
+    $animal = Animal::factory()->create();
 
-    Animal::factory(5)->create();
+    $response = $this->getJson("/api/animals/{$animal->code}");
 
-    $response = $this->get("/api/animals/LEO-999");
+    $reponse->assertStatus(Reponse::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
 
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['code'], 'message');
+test('Falla al tratar de consultar la información de un animal inexistente', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.view']);
+    $this->role->permissions()->sync($permission);
+
+    $response = $this->getJson("/api/animals/999");
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
 });
 
 // Update
