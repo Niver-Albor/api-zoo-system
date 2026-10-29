@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Species;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -178,11 +179,12 @@ test('Falla al consultar con un code invalido', function () {
         ->assertJsonValidationErrors(['code'], 'message');
 });
 
-test('Modificación correcta de campos', function () {
+// Update
+test('Actualiza correctamente los datos de un animal', function () {
     $createPermission = Permission::factory()->create(['name' => 'animals.update']);
     $this->role->permissions()->sync($createPermission->id);
 
-    Animal::factory()->create(['code' => 'LEO-001']);
+    $animal = Animal::factory()->create();
 
     $payload = [
         'code'              => 'leo-999   ',
@@ -193,12 +195,24 @@ test('Modificación correcta de campos', function () {
         'health_status'     => 'quarantine'
     ];
 
-    $response = $this->putJson('api/animals/LEO-001', $payload);
+    $response = $this->putJson("/api/animals/{$animal->code}", $payload);
+
 
     $response->assertStatus(Response::HTTP_OK)
-        ->assertJsonFragment([
-            'code' => 'LEO-999',
-            'health_status' => 'quarantine'
+        ->assertJsonPath('data.health_status', $payload['health_status'])
+        ->assertJsonStructure([
+            'data'  => [
+                'name',
+                'code',
+                'sex',
+                'health_status',
+                'birth_date',
+                'admission_date',
+                'species',
+                'habitat'
+            ],
+            'success',
+            'message'
         ]);
 });
 
@@ -206,49 +220,104 @@ test('Permite conservar el mismo code si pertenece al mismo animal', function() 
     $createPermission = Permission::factory()->create(['name' => 'animals.update']);
     $this->role->permissions()->sync($createPermission->id);
 
-    Animal::factory()->create(['code' => 'LEO-001']);
+    $animal = Animal::factory()->create();
 
     $payload = [
-        'code'              => 'leo-001   '
+        'code'  => $animal->code
     ];
 
-    $response = $this->putJson('api/animals/LEO-001', $payload);
+    $response = $this->putJson("/api/animals/{$animal->code}", $payload);
 
     $response->assertStatus(Response::HTTP_OK)
-        ->assertJsonFragment([
-            'code' => 'LEO-001',
-        ]);
+        ->assertJsonPath('data.code', $animal->code);
 });
 
 test('Falla si code ya esta en uso', function () {
     $createPermission = Permission::factory()->create(['name' => 'animals.update']);
     $this->role->permissions()->sync($createPermission->id);
 
-    Animal::factory()->create(['code' => 'LEO-001']);
-    Animal::factory()->create(['code' => 'LEO-002']);
+    $animal1 = Animal::factory()->create();
+    $animal2 = Animal::factory()->create();
 
     $payload = [
-        'code'              => 'leo-001   '
+        'code'  => $animal2->code
     ];
 
-    $response = $this->putJson('api/animals/LEO-002', $payload);
+    $response = $this->putJson("/api/animals/{$animal1->code}", $payload);
 
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonPath('success', false);
 });
 
 test('Falla si se intenta actualizar un registro inexistente', function () {
     $createPermission = Permission::factory()->create(['name' => 'animals.update']);
     $this->role->permissions()->sync($createPermission->id);
 
-    Animal::factory()->create(['code' => 'LEO-001']);
-
     $payload = [
-        'code'              => 'leo-002   '
+        'code'  => 'leo-002   '
     ];
 
-    $response = $this->putJson('api/animals/LEO-002', $payload);
+    $response = $this->putJson('api/animals/LEO-777', $payload);
 
-    $response->assertStatus(Response::HTTP_BAD_REQUEST);
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de asignar un habitat lleno a un animal', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.update']);
+    $this->role->permissions()->sync($permission);
+
+    $habitat1 = Habitat::factory()->create(['capacity'  => 5]);
+    $habitat2 = Habitat::factory()->create();
+
+    Animal::factory(5)->create(['habitat_id'    => $habitat1->id]);
+
+    $animal = Animal::factory()->create(['habitat_id'   => $habitat2->id]);
+
+    $payload = [
+        'habitat_id'    => $habitat1->id
+    ];
+
+    $reponse = $this->putJson("/api/animals/{$animal->code}", $payload);
+
+    $reponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de actualizar un animal con datos invalidos', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.update']);
+    $this->role->permissions()->sync($permission);
+
+    $date = Carbon::now();
+
+    $animal1 = Animal::factory()->create();
+    $animal2 = Animal::factory()->create(['admission_date'  => $date->toIso8601String()]);
+
+    $payload = [
+        'birth_date'    => $date->addCenturies(1),
+        'code'          => $animal1->code,
+        'sex'           => 'sexo invalido',
+        'health_status' => 'estado invalido',
+        'name'          => 1,
+        'species_id'    => 'hola',
+        'habitat_id'    => 'id'
+    ];
+
+    $reponse = $this->putJson("/api/animals/{$animal2->code}", $payload);
+
+    $reponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonPath('success', false)
+        ->assertJsonStructure([
+            'message'   => [
+                'name',
+                'sex',
+                'code',
+                'birth_date',
+                'health_status',
+                'species_id',
+                'habitat_id'
+            ]
+        ]);
 });
 
 // Destroy
