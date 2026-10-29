@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Business\DTOs\IndexRoleData;
 use App\Business\DTOs\SaveRoleData;
+use App\Business\Services\CreateRoleService;
 use App\Business\Services\DeleteRoleService;
 use App\Business\Services\IndexRoleService;
 use App\Business\Services\ShowRoleService;
-use App\Business\Services\StoreRoleService;
 use App\Business\Services\UpdateRoleService;
 use App\Http\Requests\IndexRoleRequest;
 use App\Http\Requests\StoreRoleRequest;
@@ -23,7 +23,7 @@ class RoleController extends Controller
     use ApiResponse;
 
     public function __construct(
-        protected StoreRoleService $storeRoleService,
+        protected CreateRoleService $createRoleService,
         protected UpdateRoleService $updateRoleService,
         protected IndexRoleService $indexRoleService,
         protected ShowRoleService $showRoleService,
@@ -36,7 +36,7 @@ class RoleController extends Controller
 
         $dto = SaveRoleData::fromRequest($request);
 
-        $response = $this->storeRoleService->storeRole($dto, $request->user());
+        $response = $this->createRoleService->createRole($dto, $request->user());
 
         if ($response)
             {
