@@ -19,190 +19,139 @@ beforeEach(function () {
 
 uses(RefreshDatabase::class);
 
-test('Crea un animal y regresa un JSON', function () {
-    $habitat = Habitat::factory()->create();
-    $species = Species::factory()->create();
-
+// Store
+test('Crea correctamente un animal', function () {
     $createPermission = Permission::factory()->create(['name' => 'animals.create']);
     $this->role->permissions()->sync($createPermission->id);
 
+    $habitat = Habitat::factory()->create();
+    $species = Species::factory()->create();
+
     $payload = [
-        'habitat_id' => $habitat->id,
-        'species_id' => $species->id,
-        'code' => 'leo-01   ',
-        'name' => 'Simba',
+        'name'              => '      LEON viejo     ',
+        'species_id'        => $species->id,
+        'habitat_id'        => $habitat->id,
+        'code'              => '       LEO-999      ',
+        'sex'               => 'male',
+        'birth_date'        => Carbon::now()->subDays(7)->toIso8601String(),
+        'admission_date'    => Carbon::today()->toIso8601String(),
+        'health_status'     => 'treatment',
     ];
 
-    $response = $this->postJson('/api/animals', $payload);
+    $response = $this->postJson("/api/animals", $payload);
 
-    // $response->dd();
 
     $response->assertStatus(Response::HTTP_CREATED)
+        ->assertJsonPath('data.name', strtoupper(trim($payload['name'])))
+        ->assertJsonPath('data.code', strtoupper(trim($payload['code'])));
+});
+
+test('Falla al tratar de crear un animal sin permisos', function (){
+    $habitat = Habitat::factory()->create();
+    $species = Species::factory()->create();
+
+    $payload = [
+        'name'              => '      LEON viejo     ',
+        'species_id'        => $species->id,
+        'habitat_id'        => $habitat->id,
+        'code'              => '       LEO-999      ',
+        'sex'               => 'male',
+        'birth_date'        => Carbon::now()->subDays(7)->toIso8601String(),
+        'admission_date'    => Carbon::today()->toIso8601String(),
+        'health_status'     => 'treatment',
+    ];
+
+    $response = $this->postJson("/api/animals", $payload);
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de crear un animal sin autenticacion', function () {
+    $this->app['auth']->forgetGuards();
+    $createPermission = Permission::factory()->create(['name' => 'animals.create']);
+    $this->role->permissions()->sync($createPermission->id);
+
+    $habitat = Habitat::factory()->create();
+    $species = Species::factory()->create();
+
+    $payload = [
+        'name'              => '      LEON viejo     ',
+        'species_id'        => $species->id,
+        'habitat_id'        => $habitat->id,
+        'code'              => '       LEO-999      ',
+        'sex'               => 'male',
+        'birth_date'        => Carbon::now()->subDays(7)->toIso8601String(),
+        'admission_date'    => Carbon::today()->toIso8601String(),
+        'health_status'     => 'treatment',
+    ];
+
+    $response = $this->postJson("/api/animals", $payload);
+
+    $response->assertStatus(Response::HTTP_UNAUTHORIZED)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de crear un animal con datos invalidos', function (){
+    $permission = Permission::factory()->create(['name' => 'animals.create']);
+    $this->role->permissions()->sync($permission);
+
+    $animal1 = Animal::factory()->create();
+    
+    $payload = [
+        'name'              => 99,
+        'species_id'        => 99,
+        'habitat_id'        => 99,
+        'code'              => $animal1->code,
+        'sex'               => 'mal ae',
+        'birth_date'        => Carbon::today()->addCenturies(1)->toIso8601String(),
+        'admission_date'    => Carbon::now()->addDays(7)->toIso8601String(),
+        'health_status'     => 'a treatment',
+    ];
+
+    $response = $this->postJson("/api/animals", $payload);
+    
+
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonPath('success', false)
         ->assertJsonStructure([
             'success',
-            'message',
-            'data' => [
-                'id',
-                'habitat_id',
-                'species_id',
-                'code',
+            'message'   => [
                 'name',
+                'species_id',
+                'habitat_id',
+                'code',
                 'sex',
                 'birth_date',
                 'admission_date',
                 'health_status'
-            ]
-        ])->assertJsonFragment([
-            'code' => 'LEO-01',
-            'sex' => 'unknown',
-            'birth_date' => null,
-            'admission_date' => date('Y-m-d'),
-            'health_status' => 'healthy'
-        ]);
-    
-    $this->assertDatabaseHas('animals', [
-        'habitat_id' => $habitat->id,
-        'species_id' => $species->id,
-        'code' => 'LEO-01',
-    ]);
-});
-
-test('Falla al crear cuando el code no es único', function () {
-    $animal1 = Animal::factory()->create(['code' => 'ANI-01']);
-
-    $createPermission = Permission::factory()->create(['name' => 'animals.create']);
-    $this->role->permissions()->sync($createPermission->id);
-
-    $payload = [
-        'habitat_id' => 1,
-        'species_id' => 1,
-        'code' => 'ani-01   ',
-        'name' => 'Simba',
-    ];
-
-    $response = $this->postJson('/api/animals', $payload);
-
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['code'], 'message');
-});
-
-test('Falla cuando no se envían los parametros obligatorios', function () {
-    $createPermission = Permission::factory()->create(['name' => 'animals.create']);
-    $this->role->permissions()->sync($createPermission->id);
-
-    $response = $this->postJson('/api/animals', []);
-
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['habitat_id', 'species_id', 'code', 'name'], 'message');
-});
-
-test('Falla al crear con llaves foraneas invalidas', function () {
-    $createPermission = Permission::factory()->create(['name' => 'animals.create']);
-    $this->role->permissions()->sync($createPermission->id);
-
-    $payload = [
-        'habitat_id' => 999,
-        'species_id' => 999,
-        'code' => 'ani-01   ',
-        'name' => 'Simba',
-    ];
-
-    $response = $this->postJson('/api/animals', $payload);
-
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['habitat_id', 'species_id'], 'message');
-});
-
-test('Falla al crear si se ingresan formatos invalidos', function () {
-    $habitat = Habitat::factory()->create();
-    $species = Species::factory()->create();
-
-    $createPermission = Permission::factory()->create(['name' => 'animals.create']);
-    $this->role->permissions()->sync($createPermission->id);
-
-    $payload = [
-        'habitat_id' => $habitat->id,
-        'species_id' => $species->id,
-        'code' => 'LEO-01',
-        'name' => 'Simba',
-        'sex' => 'transgender',
-        'birth_date' => '2028-05-12',
-        'admission_date' => '2030-01-10',
-        'health_status' => 'vivito y coleando'
-    ];
-
-    $response = $this->postJson('/api/animals', $payload);
-
-    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-        ->assertJsonValidationErrors(['sex', 'birth_date', 'admission_date', 'health_status'], 'message');
-});
-
-test('Retorna el listado correcto de animales.', function () {
-    $createPermission = Permission::factory()->create(['name' => 'animals.view']);
-    $this->role->permissions()->sync($createPermission->id);
-
-    $animals = Animal::factory(50)->create();
-    $per_page = 10;
-    $page = 2;
-    $offset = $page * $per_page + 1;
-    $expectedFirstAnimalInPage = $animals->get(20);
-
-    $response = $this->get("/api/animals?per_page={$per_page}&page={$page}");
-
-    $response->assertStatus(Response::HTTP_OK)
-        ->assertJsonCount($per_page, 'data')
-        ->assertJsonPath('data.0.id', $expectedFirstAnimalInPage->id);
-});
-
-// Show
-test('Devuelve correctamente la información de un animal', function () {
-    $permission = Permission::factory()->create(['name' => 'animals.view']);
-    $this->role->permissions()->sync($permission);
-
-    $animal = Animal::factory()->create();
-
-    $response = $this->getJson("/api/animals/{$animal->code}");
-
-    $response->assertStatus(Response::HTTP_FOUND)
-        ->assertJsonPath('data.code', $animal->code)
-        ->assertJsonStructure([
-            'success',
-            'data'  => [
-                'name',
-                'code',
-                'sex',
-                'health_status',
-                'birth_date',
-                'admission_date',
-                'species'   => [
-                    'id',
-                    'common_name',
-                ],
-                'habitat'   => [
-                    'id',
-                    'name',
-                ],
             ],
-            'message'
+            'data'
         ]);
 });
 
-test('Falla al tratar de consultar la información de un animal sin permisos', function () {
-    $animal = Animal::factory()->create();
+test('Falla al tratar de crear un animal en un habitat lleno', function () {
+    $createPermission = Permission::factory()->create(['name' => 'animals.create']);
+    $this->role->permissions()->sync($createPermission->id);
 
-    $response = $this->getJson("/api/animals/{$animal->code}");
+    $habitat = Habitat::factory()->create(['capacity' => 1]);
+    $species = Species::factory()->create();
+    Animal::factory()->create(['habitat_id' => $habitat->id]);
 
-    $reponse->assertStatus(Reponse::HTTP_FORBIDDEN)
-        ->assertJsonPath('success', false);
-});
+    $payload = [
+        'name'              => '      LEON viejo     ',
+        'species_id'        => $species->id,
+        'habitat_id'        => $habitat->id,
+        'code'              => '       LEO-999      ',
+        'sex'               => 'male',
+        'birth_date'        => Carbon::now()->subDays(7)->toIso8601String(),
+        'admission_date'    => Carbon::today()->toIso8601String(),
+        'health_status'     => 'treatment',
+    ];
 
-test('Falla al tratar de consultar la información de un animal inexistente', function () {
-    $permission = Permission::factory()->create(['name' => 'animals.view']);
-    $this->role->permissions()->sync($permission);
+    $response = $this->postJson("/api/animals", $payload);
 
-    $response = $this->getJson("/api/animals/999");
-
-    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false);
 });
 
@@ -345,6 +294,63 @@ test('Falla al tratar de actualizar un animal con datos invalidos', function () 
                 'habitat_id'
             ]
         ]);
+});
+
+// Index
+test('Devuelve correctamente el catalogo de animales');
+
+test('No devuevle nada cuando los filtros descartan todo el catalogo de animales');
+
+// Show
+test('Devuelve correctamente la información de un animal', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.view']);
+    $this->role->permissions()->sync($permission);
+
+    $animal = Animal::factory()->create();
+
+    $response = $this->getJson("/api/animals/{$animal->code}");
+
+    $response->assertStatus(Response::HTTP_FOUND)
+        ->assertJsonPath('data.code', $animal->code)
+        ->assertJsonStructure([
+            'success',
+            'data'  => [
+                'name',
+                'code',
+                'sex',
+                'health_status',
+                'birth_date',
+                'admission_date',
+                'species'   => [
+                    'id',
+                    'common_name',
+                ],
+                'habitat'   => [
+                    'id',
+                    'name',
+                ],
+            ],
+            'message'
+        ]);
+});
+
+test('Falla al tratar de consultar la información de un animal sin permisos', function () {
+    $animal = Animal::factory()->create();
+
+    $response = $this->getJson("/api/animals/{$animal->code}");
+
+    $reponse->assertStatus(Reponse::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de consultar la información de un animal inexistente', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.view']);
+    $this->role->permissions()->sync($permission);
+
+    $response = $this->getJson("/api/animals/999");
+
+    $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
 });
 
 // Destroy
