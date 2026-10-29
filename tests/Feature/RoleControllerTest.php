@@ -431,11 +431,57 @@ test('No devuelve nada cuando el filtro descarta todoso los registros de roles',
 });
 
 // Show
-test('Muestra correctamente la información de un rol');
+test('Muestra correctamente la información de un rol', function () {
+    Permission::factory()->create(['name' => 'roles.view']);
+    Permission::factory(5)->create();
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
 
-test('Falla al tratar de mostrar la información de un rol inexistente');
+    $permissionsResponse = $this->getJson('/api/permissions');
 
-test('Falla al tratar de mostrar la información de un rol sin permisos');
+    // Devuelve los permisos correctamente.
+    $permissionsResponse->assertStatus(Response::HTTP_OK);
+
+    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
+
+    $payload = [
+        'name'              => '      Rol nuevo del TEST    ',
+        'description'       => 'descripcion del rol',
+        'permissions_id'    => $permissionsToAssign
+    ];
+
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED);   // Valida que se haya creado el rol
+
+
+    $showResponse = $this->getJson("/api/roles/$storeResponse->json('data.id')");
+
+    $showResponse->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(2, 'data.permissions')
+        ->assertJsonPath('data.name', $storeResponse->json('data.name'))
+        ->assertJsonPath('data.permissions.0.id', $permissionsToAssign[0]['id']);
+});
+
+test('Falla al tratar de mostrar la información de un rol inexistente', function () {
+    $permission = Permission::factory()->create(['name' => 'roles.view']);
+    $this->role->permissions()->sync($permission);
+
+    $reponse = $this->getJson("/api/roles/999");
+
+    $reponse->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de mostrar la información de un rol sin permisos', function () {
+    $roleId = $this->role->id;
+
+    $reponse = $this->getJson("/api/roles/{$roleId}");
+
+    $reponse->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
 
 // Destroy
 test('Eliminar correctamente el registro de un rol');
