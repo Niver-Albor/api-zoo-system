@@ -27,4 +27,9 @@ class RolePolicy
     {
         return $user->hasPermission('roles.view');
     }
+
+    public function show(User $user): bool
+    {
+        return $user->hasPermission('roles.view');
+    }
 }
