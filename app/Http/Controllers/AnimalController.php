@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Business\Entities\AnimalEntity;
 use App\Business\Services\CreateAnimalService;
-use App\Business\Services\DestroyAnimalService;
+use App\Business\Services\DeleteAnimalService;
 use App\Business\Services\IndexAnimalService;
 use App\Business\Services\ShowAnimalService;
 use App\Business\Services\UpdateAnimalService;
@@ -27,7 +27,7 @@ class AnimalController extends Controller
         protected ShowAnimalService $showAnimalService,
         protected CreateAnimalService $createAnimalService,
         protected UpdateAnimalService $updateAnimalService,
-        protected DestroyAnimalService $destroyAniamlService
+        protected DeleteAnimalService $deleteAnimalService,
     ){}
 
     public function index(Request $request)
@@ -96,26 +96,20 @@ class AnimalController extends Controller
         );
     }
 
-    public function destroy(FindAnimalRequest $request)
+    public function destroy(Animal $animal)
     {
-        $this->authorize('destroy', Animal::class);
+        $this->authorize('destroy', $animal);
 
-        $data = $request->validated();
+        $reponse = $this->deleteAnimalService->deleteAnimal($animal);
 
-        $payLoad = $this->destroyAniamlService->destroyAnimal($data['code']);
-
-        if (!$payLoad)
+        if ($reponse)
             {
                 return $this->successResponse(
-                    data: null,
-                    message: 'Animal eliminado correctamente',
-                    code: Response::HTTP_OK
+                    null,
+                    'Animal eliminado correctamente'
                 );
             }
 
-        return $this->errorResponse(
-            message: 'Código invalido',
-            code: Response::HTTP_UNPROCESSABLE_ENTITY
-        );
+        return $this->errorResponse();
     }
 }
