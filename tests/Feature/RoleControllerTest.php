@@ -432,22 +432,18 @@ test('No devuelve nada cuando el filtro descarta todoso los registros de roles',
 
 // Show
 test('Muestra correctamente la información de un rol', function () {
+    Permission::factory()->create(['name' => 'roles.create']);
     Permission::factory()->create(['name' => 'roles.view']);
     Permission::factory(5)->create();
     $allPermissionIds = Permission::all()->pluck('id');
     $this->role->permissions()->sync($allPermissionIds);
 
-    $permissionsResponse = $this->getJson('/api/permissions');
-
-    // Devuelve los permisos correctamente.
-    $permissionsResponse->assertStatus(Response::HTTP_OK);
-
-    $permissionsToAssign = collect($permissionsResponse->json('data'))->take(2)->pluck('id')->toArray();
+    $permissionsToAssign = Permission::all()->take(2);
 
     $payload = [
         'name'              => '      Rol nuevo del TEST    ',
         'description'       => 'descripcion del rol',
-        'permissions_id'    => $permissionsToAssign
+        'permissions_id'    => $permissionsToAssign->pluck('id')->toArray()
     ];
 
     $storeResponse = $this->postJson('/api/roles', $payload);
@@ -456,12 +452,13 @@ test('Muestra correctamente la información de un rol', function () {
     $storeResponse->assertStatus(Response::HTTP_CREATED);   // Valida que se haya creado el rol
 
 
-    $showResponse = $this->getJson("/api/roles/$storeResponse->json('data.id')");
+    $showResponse = $this->getJson("/api/roles/{$storeResponse->json('data.id')}");
+    
 
     $showResponse->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(2, 'data.permissions')
         ->assertJsonPath('data.name', $storeResponse->json('data.name'))
-        ->assertJsonPath('data.permissions.0.id', $permissionsToAssign[0]['id']);
+        ->assertJsonPath('data.permissions.0.name', $permissionsToAssign->get(0)->name);
 });
 
 test('Falla al tratar de mostrar la información de un rol inexistente', function () {
