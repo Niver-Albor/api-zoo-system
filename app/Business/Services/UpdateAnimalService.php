@@ -2,23 +2,31 @@
 
 namespace App\Business\Services;
 
+use App\Business\DTOs\SaveAnimalData;
 use App\Models\Animal;
-use App\Business\Entities\AnimalEntity;
+use App\Traits\HasAnimals;
+use Carbon\CarbonImmutable;
 
 class UpdateAnimalService
 {
-    public function updateAnimal(Array $data, string $code)
+    use HasAnimals;
+
+    public function updateAnimal(SaveAnimalData $dto, Animal $animal): Animal
     {
-        $animal = Animal::where('code', $code)->firstOrFail();
+        $admissionDate = $dto->admissionDate ?? CarbonImmutable::parse($animal->addmision_date);
+        $birthDate = $dto->birthDate ?? CarbonImmutable::parse($animal->birth_date);
 
-        $entity = AnimalEntity::createFromArray($animal->toArray());
+        $this->validateDates($admissionDate, $birthDate);
 
-        $entity->validateData($data);
+        if ($dto->habitatId)
+            $this->validateHabitatCapacity($dto->habitatId);
+
+        $data = $dto->toArray();
 
         $animal->update($data);
 
-        $animal->refresh();
+        $animal->load(['species', 'habitat']);
 
-        return $animal->toArray();
+        return $animal;
     }
 }

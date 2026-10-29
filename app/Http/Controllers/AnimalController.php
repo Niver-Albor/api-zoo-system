@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\DTOs\SaveAnimalData;
 use App\Business\Entities\AnimalEntity;
 use App\Business\Services\CreateAnimalService;
 use App\Business\Services\DeleteAnimalService;
@@ -11,6 +12,7 @@ use App\Business\Services\UpdateAnimalService;
 use App\Http\Requests\FindAnimalRequest;
 use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
+use App\Http\Resources\AnimalResource;
 use App\Models\Animal;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -81,19 +83,23 @@ class AnimalController extends Controller
             code: Response::HTTP_CREATED);
     }
 
-    public function update(UpdateAnimalRequest $request, string $code)
+    public function update(UpdateAnimalRequest $request, Animal $animal)
     {
-        $this->authorize('update', Animal::class);
+        $this->authorize('update', $animal);
 
-        $validatedData = $request->validated();
+        $dto = SaveAnimalData::fromRequest($request);
 
-        $animal = $this->updateAnimalService->updateAnimal($validatedData, $code);
+        $reponse = $this->updateAnimalService->updateAnimal($dto, $animal);
 
-        return $this->successResponse(
-            data: $animal,
-            message: 'Animal actualizado correctamente',
-            code: Response::HTTP_OK
-        );
+        if ($reponse)
+            {
+                return $this->successResponse(
+                    new AnimalResource($reponse),
+                    'Animal actualizado correctamente'
+                );
+            }
+
+        return $this->errorResponse();
     }
 
     public function destroy(Animal $animal)

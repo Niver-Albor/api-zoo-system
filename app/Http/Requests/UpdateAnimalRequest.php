@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Override;
 
 class UpdateAnimalRequest extends ApiFormRequest
@@ -26,7 +27,14 @@ class UpdateAnimalRequest extends ApiFormRequest
         return [
             'habitat_id'        => 'sometimes|integer|exists:habitats,id',
             'species_id'        => 'sometimes|integer|exists:species,id',
-            'code'              => 'sometimes|string|max:100|unique:animals,code,' . $this->route('code') . ',code',
+            'code'              => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('animals', 'code')->ignore($this->route('animal'))
+            ],
+            // 'code'              => 'sometimes|string|max:100|unique:animals,code,'. $this->route('animal') .',code',
             'name'              => 'sometimes|string|max:100',
             'sex'               => 'sometimes|in:male,female,unknown',
             'birth_date'        => 'nullable|sometimes|date|before_or_equal:today',

@@ -18,7 +18,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/animals', [AnimalController::class, 'store']);
 
-    Route::put('/animals/{code}', [AnimalController::class, 'update']);
+    Route::put('/animals/{animal}', [AnimalController::class, 'update']);
 
     Route::delete('/animals/{animal}', [AnimalController::class, 'destroy']);
 });
