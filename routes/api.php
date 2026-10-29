@@ -12,20 +12,15 @@ use Illuminate\Support\Facades\Route;
 
 // Módulos de Animales.
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/animals', [AnimalController::class, 'index'])
-    ->middleware('permission:animals.view');
+    Route::get('/animals', [AnimalController::class, 'index']);
 
-    Route::get('/animals/{code}', [AnimalController::class, 'show'])
-        ->middleware('permission:animals.view');
+    Route::get('/animals/{code}', [AnimalController::class, 'show']);
 
-    Route::post('/animals', [AnimalController::class, 'store'])
-        ->middleware('permission:animals.create');
+    Route::post('/animals', [AnimalController::class, 'store']);
 
-    Route::put('/animals/{code}', [AnimalController::class, 'update'])
-        ->middleware('permission:animals.update');
+    Route::put('/animals/{code}', [AnimalController::class, 'update']);
 
-    Route::delete('/animals/{code}', [AnimalController::class, 'destroy'])
-        ->middleware('permission:animals.delete');
+    Route::delete('/animals/{code}', [AnimalController::class, 'destroy']);
 });
 
 // Módulo de Usuarios.

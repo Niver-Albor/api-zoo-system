@@ -32,6 +32,8 @@ class AnimalController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('index', Animal::class);
+
         $requestData = [
             'per_page'      => $request->query("per_page", 10),
             'page'          => $request->query("page", 0),
@@ -51,6 +53,8 @@ class AnimalController extends Controller
 
     public function show(FindAnimalRequest $request)
     {
+        $this->authorize('show', Animal::class);
+
         $payLoad = $this->showAnimalService->showAnimal($request->query('code'));
 
         // dd($payLoad);
@@ -65,6 +69,8 @@ class AnimalController extends Controller
 
     public function store(StoreAnimalRequest $request)
     {
+        $this->authorize('store', Animal::class);
+
         $animalEntity = AnimalEntity::createFromArray($request->validated());
 
         $animal = $this->createAnimalService->createAnimal($animalEntity);
@@ -77,6 +83,8 @@ class AnimalController extends Controller
 
     public function update(UpdateAnimalRequest $request, string $code)
     {
+        $this->authorize('update', Animal::class);
+
         $validatedData = $request->validated();
 
         $animal = $this->updateAnimalService->updateAnimal($validatedData, $code);
@@ -90,6 +98,8 @@ class AnimalController extends Controller
 
     public function destroy(FindAnimalRequest $request)
     {
+        $this->authorize('destroy', Animal::class);
+
         $data = $request->validated();
 
         $payLoad = $this->destroyAniamlService->destroyAnimal($data['code']);
@@ -107,5 +117,5 @@ class AnimalController extends Controller
             message: 'Código invalido',
             code: Response::HTTP_UNPROCESSABLE_ENTITY
         );
-}
+    }
 }
