@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Business\DTOs\IndexRoleData;
 use App\Business\DTOs\SaveRoleData;
+use App\Business\Services\IndexRoleService;
 use App\Business\Services\StoreRoleService;
 use App\Business\Services\UpdateRoleService;
+use App\Http\Requests\IndexRoleRequest;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
@@ -20,6 +23,7 @@ class RoleController extends Controller
     public function __construct(
         protected StoreRoleService $storeRoleService,
         protected UpdateRoleService $updateRoleService,
+        protected IndexRoleService $indexRoleService,
     ) {}
 
     public function store(StoreRoleRequest $request)
@@ -60,5 +64,16 @@ class RoleController extends Controller
             }
 
         return $this->errorResponse();
+    }
+
+    public function index(IndexRoleRequest $request)
+    {
+        $this->authorize('view', Role::class);
+
+        $filters = IndexRoleData::fromRequest($request);
+
+        $response = $this->indexRoleService->indexRole($filters);
+
+        return RoleResource::collection($response);
     }
 }
