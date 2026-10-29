@@ -481,10 +481,102 @@ test('Falla al tratar de mostrar la información de un rol sin permisos', functi
 });
 
 // Destroy
-test('Eliminar correctamente el registro de un rol');
+test('Eliminar correctamente el registro de un rol', function () {
+    Permission::factory()->create(['name' => 'roles.create']);
+    Permission::factory()->create(['name' => 'roles.delete']);
+    Permission::factory(5)->create();
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
 
-test('Falla al tratar de eliminar un rol inexistente');
+    $permissionsToAssign = Permission::all()->take(2);
 
-test('Falla al tratar de eliminar un rol sin permisos');
+    $payload = [
+        'name'              => '      Rol nuevo del TEST    ',
+        'description'       => 'descripcion del rol',
+        'permissions_id'    => $permissionsToAssign->pluck('id')->toArray()
+    ];
 
-test('Falla al tratar de eliminar un rol que tiene usuarios asociados');
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED);   // Valida que se haya creado el rol
+
+    $roleId = $storeResponse->json('data.id');
+
+
+    $deleteResponse = $this->deleteJson("/api/roles/{$roleId}");
+
+
+    $deleteResponse->assertStatus(Response::HTTP_OK)
+        ->assertJsonPath('success', true);
+});
+
+test('Falla al tratar de eliminar un rol inexistente', function () {
+    $permission = Permission::factory()->create(['name' => 'roles.delete']);
+    $this->role->permissions()->sync($permission);
+
+    $reponse = $this->deleteJson("/api/roles/999");
+
+    $reponse->assertStatus(Response::HTTP_BAD_REQUEST)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de eliminar un rol sin permisos', function () {
+    Permission::factory()->create(['name' => 'roles.create']);
+    Permission::factory(5)->create();
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
+
+    $permissionsToAssign = Permission::all()->take(2);
+
+    $payload = [
+        'name'              => '      Rol nuevo del TEST    ',
+        'description'       => 'descripcion del rol',
+        'permissions_id'    => $permissionsToAssign->pluck('id')->toArray()
+    ];
+
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED);   // Valida que se haya creado el rol
+
+    $roleId = $storeResponse->json('data.id');
+
+
+    $deleteResponse = $this->deleteJson("/api/roles/{$roleId}");
+
+    $deleteResponse->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
+
+test('Falla al tratar de eliminar un rol que tiene usuarios asociados', function () {
+    Permission::factory()->create(['name' => 'roles.create']);
+    Permission::factory()->create(['name' => 'roles.delete']);
+    Permission::factory(5)->create();
+    $allPermissionIds = Permission::all()->pluck('id');
+    $this->role->permissions()->sync($allPermissionIds);
+
+    $permissionsToAssign = Permission::all()->take(2);
+
+    $payload = [
+        'name'              => '      Rol nuevo del TEST    ',
+        'description'       => 'descripcion del rol',
+        'permissions_id'    => $permissionsToAssign->pluck('id')->toArray()
+    ];
+
+    $storeResponse = $this->postJson('/api/roles', $payload);
+
+
+    $storeResponse->assertStatus(Response::HTTP_CREATED);   // Valida que se haya creado el rol
+
+    $roleId = $storeResponse->json('data.id');
+
+    User::factory()->create(['role_id'  => $roleId]);
+
+
+    $deleteResponse = $this->deleteJson("/api/roles/{$roleId}");
+
+
+    $deleteResponse->assertStatus(Response::HTTP_FORBIDDEN)
+        ->assertJsonPath('success', false);
+});
