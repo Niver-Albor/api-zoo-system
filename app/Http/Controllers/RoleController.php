@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Business\DTOs\IndexRoleData;
 use App\Business\DTOs\SaveRoleData;
+use App\Business\Services\DeleteRoleService;
 use App\Business\Services\IndexRoleService;
 use App\Business\Services\ShowRoleService;
 use App\Business\Services\StoreRoleService;
@@ -26,6 +27,7 @@ class RoleController extends Controller
         protected UpdateRoleService $updateRoleService,
         protected IndexRoleService $indexRoleService,
         protected ShowRoleService $showRoleService,
+        protected DeleteRoleService $deleteRoleService,
     ) {}
 
     public function store(StoreRoleRequest $request)
@@ -92,6 +94,23 @@ class RoleController extends Controller
                 );
             }
 
+        return $this->errorResponse();
+    }
+
+    public function destroy(Role $role)
+    {
+        $this->authorize('destroy', $role);
+
+        $response = $this->deleteRoleService->deleteRole($role);
+
+        if ($response)
+            {
+                return $this->successResponse(
+                    null,
+                    'Rol eliminado correctamente'
+                );
+            }
+        
         return $this->errorResponse();
     }
 }

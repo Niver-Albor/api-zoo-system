@@ -32,4 +32,9 @@ class RolePolicy
     {
         return $user->hasPermission('roles.view');
     }
+
+    public function destroy(User $user, Role $role)
+    {
+        return $user->hasPermission('roles.delete');
+    }
 }
