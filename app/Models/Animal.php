@@ -33,4 +33,9 @@ class Animal extends Model implements Auditable
     {
         return $this->belongsTo(Species::class);
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'code';
+    }
 }
