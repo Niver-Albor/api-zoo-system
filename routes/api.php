@@ -93,4 +93,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/roles', [RoleController::class, 'store']);
 
     Route::put('/roles/{role}', [RoleController::class, 'update']);
+
+    Route::get('/roles', [RoleController::class, 'index']);
 });

@@ -22,4 +22,9 @@ class RolePolicy
 
         return $user->hasPermission('roles.update');
     }
+
+    public function view(User $user): bool
+    {
+        return $user->hasPermission('roles.view');
+    }
 }
