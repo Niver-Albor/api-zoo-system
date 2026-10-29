@@ -577,6 +577,6 @@ test('Falla al tratar de eliminar un rol que tiene usuarios asociados', function
     $deleteResponse = $this->deleteJson("/api/roles/{$roleId}");
 
 
-    $deleteResponse->assertStatus(Response::HTTP_FORBIDDEN)
+    $deleteResponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false);
 });
