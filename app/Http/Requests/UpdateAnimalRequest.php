@@ -49,5 +49,10 @@ class UpdateAnimalRequest extends ApiFormRequest
             $this->merge([
                 'code' => strtoupper(trim($this->code))
             ]);
+
+        if (isset($this->name))
+            $this->merge([
+                'name' => strtoupper(trim($this->name))
+            ]);
     }
 }
