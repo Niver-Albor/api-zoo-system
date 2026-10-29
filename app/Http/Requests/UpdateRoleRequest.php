@@ -33,8 +33,35 @@ class UpdateRoleRequest extends ApiFormRequest
                 Rule::unique('roles', 'name')->ignore($this->route('role')),
             ],
             'description'   => 'sometimes|nullable|string',
-            'permissions_id' => 'sometimes|array|min:1',
             'permissions_id.*'  => 'sometimes|integer|exists:permissions,id',
+            'permissions_id' => [
+                'required',
+                'array',
+                function ($attribute, $value, $fail) {
+                    $user = $this->user();
+                    $role = $this->route('role');
+
+                    $userPermissionIds = $user->role->permissions->pluck('id');
+                    $unauthorizedToAdd = collect($value)->diff($userPermissionIds);
+
+                    if ($unauthorizedToAdd->isNotEmpty())
+                        {
+                            $fail('No puedes asignar permisos que tú mismo no posees.');
+                        }
+
+                    if ($role)
+                        {
+                            $currentRolePermissionIds = $role->permissions->pluck('id');
+                            $restrictedPermissions = $currentRolePermissionIds->diff($userPermissionIds);
+                            $triedToRemoveRestricted = $restrictedPermissions->diff($value);
+
+                            if ($triedToRemoveRestricted->isNotEmpty())
+                                {
+                                    $fail('No puedes revocar permisos que están por encima de tu nivel de autoridad.');
+                                }
+                        }
+                }
+            ],
         ];
     }
 

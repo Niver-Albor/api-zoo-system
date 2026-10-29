@@ -241,7 +241,6 @@ test('Falla al tratar de actualizar un rol con datos invalidos', function () {
 
     $updateResponse = $this->putJson("/api/roles/{$roleId}", $payload);
 
-
     $updateResponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false)
         ->assertJsonStructure([
@@ -296,12 +295,14 @@ test('Falla al tratar de actualizar su propio rol', function () {
     $this->role->permissions()->sync($permission);
 
     $payload = [
-        'name'  => 'nombre de ejemplo que no puede generar la factory, 100% real no fake'
+        'name'  => 'nombre de ejemplo que no puede generar la factory, 100% real no fake',
+        'permissions_id'    => [$permission->id],
     ];
 
     $roleId = $this->role->id;
 
     $response = $this->putJson("/api/roles/{$roleId}", $payload);
+    
 
     $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
@@ -312,7 +313,8 @@ test('Falla al tratar de actualizar un rol del sistema', function () {
     $this->role->permissions()->sync($permission);
 
     $payload = [
-        'name'  => 'nombre de ejemplo que no puede generar la factory, 100% real no fake'
+        'name'  => 'nombre de ejemplo que no puede generar la factory, 100% real no fake',
+        'permissions_id'    => [$permission->id],
     ];
 
     $systemRole = Role::factory()->create(['is_system'  => true]);
@@ -361,8 +363,7 @@ test('Falla al tratar de actualizar un rol con permisos que no posee', function 
         ->assertJsonPath('success', false);
 });
 
-// Index
-test('Devuelve correctamente el catalogo de los roles');
+test('Falla al tratar de revocar un permiso que no posee');
 
 test('No devuelve nada cuando el filtro descarta todoso los registros de roles');
 
