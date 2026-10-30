@@ -264,13 +264,11 @@ test('Falla al tratar de actualizar un animal con datos invalidos', function () 
     $permission = Permission::factory()->create(['name' => 'animals.update']);
     $this->role->permissions()->sync($permission);
 
-    $date = Carbon::now();
-
     $animal1 = Animal::factory()->create();
-    $animal2 = Animal::factory()->create(['admission_date'  => $date->toIso8601String()]);
+    $animal2 = Animal::factory()->create(['admission_date'  => Carbon::now()->toIso8601String()]);
 
     $payload = [
-        'birth_date'    => $date->addCenturies(1),
+        'birth_date'    => Carbon::now()->addCenturies(1)->toIso8601String(),
         'code'          => $animal1->code,
         'sex'           => 'sexo invalido',
         'health_status' => 'estado invalido',
@@ -303,7 +301,7 @@ test('Devuelve correctamente el catalogo de animales', function () {
 
     Animal::factory(50)->create();
 
-    $animal = Animal::skip(5)->firstOrFail();
+    $animal = Animal::orderBy('created_at', 'desc')->skip(5)->firstOrFail();
 
     $filters = "per_page=5&page=2";
 
