@@ -4,7 +4,7 @@
 [![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-API RESTful backend diseñada bajo principios de **Domain-Driven Design (DDD)** y **Clean Architecture**, desarrollada como parte de la refactorización de un sistema de gestión para la administración de un zoológico. El sistema prioriza la modularidad, la seguridad en la autenticación híbrida y la integridad de datos mediante un diseño relacional sólido.
+API RESTful backend diseñada bajo principios de **Test-Driven Design (TDD)** y **Clean Architecture**, desarrollada como parte de la refactorización de un sistema de gestión para la administración de un zoológico. El sistema prioriza la modularidad, la seguridad en la autenticación híbrida y la integridad de datos mediante un diseño relacional sólido.
 
 ---
 
