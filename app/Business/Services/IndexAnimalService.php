@@ -46,7 +46,7 @@ class IndexAnimalService
         // Ordenamiento.
         $sortBy = $filters->sortBy ?? 'created_at';
         $sortDir = $filters->sortDirection ?? 'desc';
-        $query->orderBy($sortBy, $sortDir);
+        $query->orderBy($sortBy, $sortDir)->orderBy('id', 'asc');
 
         // Paginación.
         $perPage = $filters->perPage ?? 10;
