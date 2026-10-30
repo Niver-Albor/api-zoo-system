@@ -2,34 +2,56 @@
 
 namespace App\Business\Services;
 
+use App\Business\DTOs\IndexAnimalData;
 use App\Models\Animal;
-
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class IndexAnimalService
 {
-    public function indexAnimals(array $data)
+    public function indexAnimals(IndexAnimalData $filters): LengthAwarePaginator
     {
-        $allAnimals = Animal::
-            when($data['health_status'], function ($query, $health_status) {
-                $query->where('health_status', $health_status);
-            })
-            ->when($data['species_id'], function ($query, $species_id) {
-                $query->where('species_id', $species_id);
-            })
-            ->when($data['habitat_id'], function ($query, $habitat_id) {
-                $query->where('habitat_id', $habitat_id);
-            })
-            ->when($data['sex'], function ($query, $sex) {
-                $query->where('sex', $sex);
-            })
-            ->when($data['search'], function ($query, $search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('code', 'LIKE', "%{$search}%");
-                });
-            })
-            ->skip($data['offset'])->take($data['per_page'])->get();
+        $query = Animal::with(['species', 'habitat'])
+            ->select('animals.*')
+            ->join('species', 'animals.species_id', '=', 'species.id')
+            ->join('habitats', 'animals.habitat_id', '=', 'habitats.id');
 
-        return $allAnimals->toArray();
+        // Búsqueda general (por nombre o código del animal)
+        if (!empty($filters->search)) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('animals.name', 'like', "%{$filters->search}%")
+                  ->orWhere('animals.code', 'like', "%{$filters->search}%");
+            });
+        }
+
+        // Filtrado por estado de salud
+        if (!empty($filters->healthStatus)) {
+            $query->where('animals.health_status', $filters->healthStatus);
+        }
+
+        // Filtrado por especie
+        if (!empty($filters->speciesId)) {
+            $query->where('animals.species_id', $filters->speciesId);
+        }
+
+        // Filtrado por hábitat
+        if (!empty($filters->habitatId)) {
+            $query->where('animals.habitat_id', $filters->habitatId);
+        }
+
+        // Filtrado por sexo
+        if (!empty($filters->sex)) {
+            $query->where('animals.sex', $filters->sex);
+        }
+
+        // Ordenamiento
+        $sortBy = $filters->sortBy ?? 'created_at';
+        $sortDir = $filters->sortDirection ?? 'desc';
+        $query->orderBy("animals.{$sortBy}", $sortDir);
+
+        // Paginación
+        $perPage = $filters->perPage ?? 10;
+        $page = $filters->page ?? 1;
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 }
