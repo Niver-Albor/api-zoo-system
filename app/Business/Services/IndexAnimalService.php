@@ -43,12 +43,12 @@ class IndexAnimalService
             $query->where('animals.sex', $filters->sex);
         }
 
-        // Ordenamiento
+        // Ordenamiento.
         $sortBy = $filters->sortBy ?? 'created_at';
         $sortDir = $filters->sortDirection ?? 'desc';
-        $query->orderBy("animals.{$sortBy}", $sortDir);
+        $query->orderBy($sortBy, $sortDir);
 
-        // Paginación
+        // Paginación.
         $perPage = $filters->perPage ?? 10;
         $page = $filters->page ?? 1;
 
