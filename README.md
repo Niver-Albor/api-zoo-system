@@ -14,7 +14,7 @@ API RESTful backend diseñada puramente para servicios backend, desarrollada baj
 - **Enfoque TDD:** Cobertura de funcionalidades y flujos críticos mediante pruebas automatizadas con **Pest PHP**.
 - **Autenticación Híbrida:** Soporte dual mediante sesiones basadas en cookies (para clientes web) y tokens de acceso seguro con **Laravel Sanctum** (para aplicaciones cliente externas/móviles).
 - **Auditoría y Trazabilidad:** Integración de `owen-it/laravel-auditing` sobre un modelo relacional en **MariaDB** para un registro riguroso de cambios.
-- **Control de Accesos:** Gestión granular de roles y permisos mediante *Policies* y *Middleware* de Laravel.
+- **Control de Accesos:** Gestión granular de roles y permisos mediante *Policies* y *Middleware* de Laravel, basado en **Role-Based Access Control (RBAC)**.
 
 ---
 
@@ -107,6 +107,91 @@ o directamente mediante Pest:
 ```bash
 ./vendor/bin/pest
 ```
+
+---
+## Documentación de la API
+
+Todas las rutas (a excepción del inicio de sesión y la obtención del token CSRF) están protegidas bajo el middleware de autenticación `auth:sanctum`, requiriendo un Token de acceso Bearer o una sesión autenticada mediante cookies.
+
+### 1. Autenticación y Seguridad
+
+| Método | Ruta | Descripción | Recurso de Respuesta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/sanctum/csrf-cookie` | Obtiene la cookie `XSRF-TOKEN` requerida para clientes SPA/web | Cookie de sesión |
+| `POST` | `/api/login` | Inicia sesión y emite token de acceso o establece sesión | Estructura JSON con token |
+| `POST` | `/api/logout` | Cierra la sesión activa y revoca el token | Mensaje de éxito |
+
+### 2. Usuarios (`/api/users`)
+
+*Parámetro de ruta: `{user}` corresponde al **UUID** del usuario.*
+
+| Método | Ruta | Descripción | Recurso de Respuesta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/users` | Listar usuarios del sistema | `UserResource` |
+| `GET` | `/api/users/{user}` | Mostrar detalles de un usuario (incluye *soft deletes*) | `UserResource` |
+| `POST` | `/api/users` | Registrar un nuevo usuario | `UserResource` |
+| `PUT` | `/api/users/{user}` | Actualizar información del usuario | `UserResource` |
+| `DELETE` | `/api/users/{user}` | Eliminar un usuario (Soft Delete) | Mensaje de éxito |
+
+### 3. Animales (`/api/animals`)
+
+*Parámetro de ruta: `{animal}` corresponde al **código único (`code`)** del animal.*
+
+| Método | Ruta | Descripción | Recurso de Respuesta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/animals` | Listar catálogo de animales | `AnimalResource` |
+| `GET` | `/api/animals/{animal}` | Mostrar detalles de un animal por su código | `AnimalResource` |
+| `POST` | `/api/animals` | Registrar un nuevo animal | `AnimalResource` |
+| `PUT` | `/api/animals/{animal}` | Actualizar información o estado del animal | `AnimalResource` |
+| `DELETE` | `/api/animals/{animal}` | Eliminar registro de un animal | Mensaje de éxito |
+
+### 4. Hábitats (`/api/habitats`)
+
+*Parámetro de ruta: `{habitat}` corresponde al **ID numérico** del hábitat.*
+
+| Método | Ruta | Descripción | Recurso de Respuesta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/habitats` | Listar hábitats registrados | `HabitatResource` |
+| `GET` | `/api/habitats/{habitat}` | Mostrar detalles de un hábitat y sus animales asociados | `HabitatResource` |
+| `POST` | `/api/habitats` | Registrar un nuevo hábitat | `HabitatResource` |
+| `PUT` | `/api/habitats/{habitat}` | Actualizar datos del hábitat | `HabitatResource` |
+| `DELETE` | `/api/habitats/{habitat}` | Eliminar un hábitat | Mensaje de éxito |
+
+### 5. Especies (`/api/species`)
+
+*Parámetro de ruta: `{species}` corresponde al **ID numérico** de la especie.*
+
+| Método | Ruta | Descripción | Recurso de Respuesta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/species` | Listar catálogo de especies | `SpeciesResource` |
+| `GET` | `/api/species/{species}` | Mostrar detalles de una especie y sus animales vinculados | `SpeciesResource` |
+| `POST` | `/api/species` | Registrar una nueva especie | `SpeciesResource` |
+| `PUT` | `/api/species/{species}` | Actualizar información de una especie | `SpeciesResource` |
+| `DELETE` | `/api/species/{species}` | Eliminar una especie | Mensaje de éxito |
+
+### 6. Historial Médico (`/api/med_records`)
+
+*Parámetro de ruta: `{medical_record}` corresponde al **UUID** del registro médico.*
+
+| Método | Ruta | Descripción | Recurso de Respuesta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/med_records` | Listar registros médicos | `MedicalRecordResource` |
+| `GET` | `/api/med_records/{medical_record}` | Mostrar un registro médico específico | `MedicalRecordResource` |
+| `POST` | `/api/med_records` | Crear un nuevo registro médico | `MedicalRecordResource` |
+| `PUT` | `/api/med_records/{medical_record}` | Crear una enmienda/corrección sobre un registro previo | `MedicalRecordResource` |
+
+### 7. Roles y Permisos
+
+*Parámetro de ruta: `{role}` corresponde al **ID numérico** del rol.*
+
+| Método | Ruta | Descripción | Recurso de Respuesta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/permissions` | Listar todos los permisos disponibles en el sistema | `PermissionResource` |
+| `GET` | `/api/roles` | Listar roles y sus permisos asociados | `RoleResource` |
+| `GET` | `/api/roles/{role}` | Mostrar detalles de un rol específico | `RoleResource` |
+| `POST` | `/api/roles` | Registrar un nuevo rol asignándole permisos | `RoleResource` |
+| `PUT` | `/api/roles/{role}` | Actualizar un rol y sus permisos | `RoleResource` |
+| `DELETE` | `/api/roles/{role}` | Eliminar un rol | Mensaje de éxito |
 
 ---
 
