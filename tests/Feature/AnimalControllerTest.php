@@ -254,9 +254,9 @@ test('Falla al tratar de asignar un habitat lleno a un animal', function () {
         'habitat_id'    => $habitat1->id
     ];
 
-    $reponse = $this->putJson("/api/animals/{$animal->code}", $payload);
+    $response = $this->putJson("/api/animals/{$animal->code}", $payload);
 
-    $reponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false);
 });
 
@@ -279,9 +279,9 @@ test('Falla al tratar de actualizar un animal con datos invalidos', function () 
         'habitat_id'    => 'id'
     ];
 
-    $reponse = $this->putJson("/api/animals/{$animal2->code}", $payload);
+    $response = $this->putJson("/api/animals/{$animal2->code}", $payload);
 
-    $reponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonPath('success', false)
         ->assertJsonStructure([
             'message'   => [
@@ -297,9 +297,37 @@ test('Falla al tratar de actualizar un animal con datos invalidos', function () 
 });
 
 // Index
-test('Devuelve correctamente el catalogo de animales');
+test('Devuelve correctamente el catalogo de animales', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.view']);
+    $this->role->permissions()->sync($permission);
 
-test('No devuevle nada cuando los filtros descartan todo el catalogo de animales');
+    Animal::factory(50)->create();
+
+    $animal = Animal::skip(5)->firstOrFail();
+
+    $filters = "per_page=5&page=2";
+
+    $response = $this->getJson("/api/animals?{$filters}");
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(5, 'data')
+        ->assertJsonPath('data.0.code', $animal->code);
+});
+
+test('No devuevle nada cuando los filtros descartan todo el catalogo de animales', function () {
+    $permission = Permission::factory()->create(['name' => 'animals.view']);
+    $this->role->permissions()->sync($permission);
+
+    Animal::factory(50)->create();
+
+     $filters = 'per_page=5&page=2&search=LEO-999';
+
+    $response = $this->getJson("/api/animals?{$filters}");
+
+
+    $response->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(0, 'data');
+});
 
 // Show
 test('Devuelve correctamente la información de un animal', function () {
@@ -339,7 +367,7 @@ test('Falla al tratar de consultar la información de un animal sin permisos', f
 
     $response = $this->getJson("/api/animals/{$animal->code}");
 
-    $reponse->assertStatus(Reponse::HTTP_FORBIDDEN)
+    $response->assertStatus(Response::HTTP_FORBIDDEN)
         ->assertJsonPath('success', false);
 });
 
