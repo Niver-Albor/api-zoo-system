@@ -309,6 +309,7 @@ test('Devuelve correctamente el catalogo de animales', function () {
 
     $response = $this->getJson("/api/animals?{$filters}");
 
+
     $response->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(5, 'data')
         ->assertJsonPath('data.0.code', $animal->code);
