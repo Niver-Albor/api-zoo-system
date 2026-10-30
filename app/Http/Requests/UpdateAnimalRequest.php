@@ -45,12 +45,12 @@ class UpdateAnimalRequest extends ApiFormRequest
 
     protected function prepareForValidation()
     {
-        if (isset($this->code))
+        if (is_string($this->code))
             $this->merge([
                 'code' => strtoupper(trim($this->code))
             ]);
 
-        if (isset($this->name))
+        if (is_string($this->name))
             $this->merge([
                 'name' => strtoupper(trim($this->name))
             ]);
